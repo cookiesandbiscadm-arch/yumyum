@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Plus, Minus, Heart, Star } from 'lucide-react';
-import { products } from '../data/products';
+import { supabase } from '../lib/supabaseClient';
 import { useCart } from '../context/CartContext';
 
 const ProductDetail: React.FC = () => {
@@ -10,14 +10,53 @@ const ProductDetail: React.FC = () => {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [isLiked, setIsLiked] = useState(false);
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  // Related products state
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const [relatedLoading, setRelatedLoading] = useState(true);
+  const [relatedError, setRelatedError] = useState<string | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    async function fetchProduct() {
+      setLoading(true);
+      setError(null);
+      const { data, error } = await supabase
+        .from('products_with_images')
+        .select('*')
+        .eq('id', id)
+        .single();
+      if (error) setError(error.message || 'Failed to load product.');
+      setProduct(data);
+      setLoading(false);
+    }
+    fetchProduct();
+  }, [id]);
 
-  const product = products.find(p => p.id === id);
+  // Fetch related products
+  useEffect(() => {
+    if (!product || !product.category_id) return;
+    setRelatedLoading(true);
+    setRelatedError(null);
+    supabase
+      .from('products_with_images')
+      .select('*')
+      .eq('category_id', product.category_id)
+      .neq('id', product.id)
+      .limit(4)
+      .then(({ data, error }) => {
+        if (error) setRelatedError(error.message || 'Failed to load related products.');
+        setRelatedProducts(data || []);
+        setRelatedLoading(false);
+      });
+  }, [product]);
 
-  if (!product) {
+  if (loading) {
+    return <div className="pt-20 min-h-screen flex items-center justify-center">Loading product...</div>;
+  }
+  if (error || !product) {
     return (
       <div className="pt-20 min-h-screen bg-secondary flex items-center justify-center">
         <div className="text-center">
@@ -70,7 +109,7 @@ const ProductDetail: React.FC = () => {
           >
             <div className="relative overflow-hidden rounded-3xl bg-white p-8 shadow-xl">
               <img
-                src={product.image}
+                src={product.full_image_url || product.image_url}
                 alt={product.name}
                 className="w-full h-96 object-cover rounded-2xl"
               />
@@ -227,10 +266,13 @@ const ProductDetail: React.FC = () => {
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products
-              .filter(p => p.id !== product.id && p.category === product.category)
-              .slice(0, 4)
-              .map((relatedProduct, index) => (
+            {relatedLoading ? (
+              <div className="col-span-full text-center py-8">Loading related products...</div>
+            ) : relatedError ? (
+              <div className="col-span-full text-center text-red-500 py-8">{relatedError}</div>
+            ) : relatedProducts.length === 0 ? (
+              <div className="col-span-full text-center py-8">No related products found.</div>
+            ) : relatedProducts.map((relatedProduct: any, index: number) => (
                 <motion.div
                   key={relatedProduct.id}
                   initial={{ y: 50, opacity: 0 }}

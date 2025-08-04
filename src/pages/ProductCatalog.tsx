@@ -2,20 +2,42 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Star, Plus } from 'lucide-react';
-import { products, categories } from '../data/products';
+import { fetchProducts, fetchCategories } from '../lib/api';
 import { useCart } from '../context/CartContext';
 
 const ProductCatalog: React.FC = () => {
+  const [categories, setCategories] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [activeCategory, setActiveCategory] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { addItem } = useCart();
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    async function loadData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const [cats, prods] = await Promise.all([
+          fetchCategories(),
+          fetchProducts()
+        ]);
+        setCategories([{ id: 'all', name: 'All Treats', emoji: '🍪' }, ...cats]);
+        setProducts(prods);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load data.');
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
   }, []);
 
-  const filteredProducts = activeCategory === 'all' 
-    ? products 
-    : products.filter(product => product.category === activeCategory);
+  const filteredProducts = activeCategory === 'all'
+    ? products
+    : products.filter(product => product.category_id === activeCategory);
+
 
   return (
     <div className="pt-20 min-h-screen bg-secondary">
@@ -59,7 +81,13 @@ const ProductCatalog: React.FC = () => {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product, index) => (
+          {loading ? (
+            <div className="col-span-full text-center py-12">Loading products...</div>
+          ) : error ? (
+            <div className="col-span-full text-center text-red-500 py-12">{error}</div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="col-span-full text-center py-12">No products found.</div>
+          ) : filteredProducts.map((product, index) => (
             <motion.div
               key={product.id}
               layout
@@ -72,7 +100,7 @@ const ProductCatalog: React.FC = () => {
               <div className="relative overflow-hidden rounded-2xl mb-4">
                 <Link to={`/product/${product.id}`}>
                   <img
-                    src={product.image}
+                    src={product.full_image_url || product.image_url}
                     alt={product.name}
                     className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />

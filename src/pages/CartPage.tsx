@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { submitOrder } from '../lib/api';
 
 const CartPage: React.FC = () => {
   const { state, updateQuantity, removeItem, clearCart } = useCart();
@@ -18,16 +19,28 @@ const CartPage: React.FC = () => {
     address: ''
   });
 
-  const handleCheckout = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsCheckingOut(true);
-    
-    // Simulate checkout process
-    setTimeout(() => {
-      clearCart();
-      navigate('/thank-you', { state: { customerInfo } });
-    }, 2000);
-  };
+
+const handleCheckout = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsCheckingOut(true);
+  try {
+    const orderResult = await submitOrder({
+      customer: customerInfo,
+      items: state.items.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+      }))
+    });
+    clearCart();
+    navigate('/thank-you', { state: { customerInfo, orderNumber: orderResult.order_number } });
+  } catch (error: any) {
+    alert('Order failed: ' + (error && (typeof error === 'object' && 'message' in error) ? error.message : String(error)));
+  } finally {
+    setIsCheckingOut(false);
+  }
+};
 
   if (state.items.length === 0) {
     return (
@@ -117,7 +130,7 @@ const CartPage: React.FC = () => {
                   <div className="flex items-center gap-4">
                     <div className="relative">
                       <img
-                        src={item.image}
+                        src={item.full_image_url}
                         alt={item.name}
                         className="w-20 h-20 object-cover rounded-2xl"
                       />

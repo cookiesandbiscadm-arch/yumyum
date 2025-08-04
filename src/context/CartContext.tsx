@@ -4,13 +4,13 @@ export interface Product {
   id: string;
   name: string;
   price: number;
-  image: string;
-  category: string;
   description: string;
-  nutrition: {
-    calories: number;
-    sugar: number;
-    protein: number;
+  category_id: string;
+  full_image_url?: string;
+  nutrition?: {
+    calories?: number;
+    sugar?: number;
+    protein?: number;
   };
 }
 

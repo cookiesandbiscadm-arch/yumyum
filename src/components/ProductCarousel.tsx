@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Heart, Plus } from 'lucide-react';
-import { products } from '../data/products';
+import { fetchProducts } from '../lib/api';
 import { useCart } from '../context/CartContext';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -81,6 +81,19 @@ const ProductCarousel: React.FC = () => {
     }
   };
 
+  const [products, setProducts] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    setLoading(true);
+    setError(null);
+    fetchProducts()
+      .then(prods => setProducts(prods))
+      .catch(e => setError(e.message || 'Failed to load products.'))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <section ref={sectionRef} className="py-20 bg-gradient-to-b from-pink-50 to-orange-50">
       <div className="container mx-auto px-4">
@@ -94,16 +107,22 @@ const ProductCarousel: React.FC = () => {
         </motion.div>
 
         <div className="product-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {products.slice(0, 6).map((product, index) => (
+          {loading ? (
+            <div className="col-span-full text-center py-12">Loading products...</div>
+          ) : error ? (
+            <div className="col-span-full text-center text-red-500 py-12">{error}</div>
+          ) : products.length === 0 ? (
+            <div className="col-span-full text-center py-12">No products found.</div>
+          ) : products.slice(0, 6).map((product, index) => (
             <div
               key={product.id}
               className="product-card group bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
             >
               <div className="relative overflow-hidden rounded-2xl mb-4">
                 <img
-                  src={product.image}
+                  src={product.full_image_url || product.image_url}
                   alt={product.name}
-                  className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                  className="w-full h-48 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-500"
                 />
                 
                 {/* Floating emoji */}
