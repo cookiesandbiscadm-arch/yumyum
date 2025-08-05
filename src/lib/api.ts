@@ -35,10 +35,13 @@ export async function submitOrder({ customer, items }: {
   if (customerError) throw customerError;
   const customer_id = customerData.id;
 
+  // 2. Calculate total amount
+  const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
   // 2. Insert order
   const { data: orderData, error: orderError } = await supabase
     .from('orders')
-    .insert([{ customer_id, delivery_address: customer.address }])
+    .insert([{ customer_id, delivery_address: customer.address, total_amount: totalAmount }])
     .select('id, order_number')
     .single();
   if (orderError) throw orderError;
