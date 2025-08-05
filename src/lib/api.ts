@@ -38,7 +38,7 @@ export async function submitOrder({ customer, items }: {
   // 2. Insert order
   const { data: orderData, error: orderError } = await supabase
     .from('orders')
-    .insert([{ customer_id }])
+    .insert([{ customer_id, delivery_address: customer.address }])
     .select('id, order_number')
     .single();
   if (orderError) throw orderError;
@@ -51,7 +51,8 @@ export async function submitOrder({ customer, items }: {
     product_id: item.id,
     product_name: item.name,
     unit_price: item.price,
-    quantity: item.quantity
+    quantity: item.quantity,
+    total_price: item.price * item.quantity
   }));
   const { error: itemsError } = await supabase
     .from('order_items')
