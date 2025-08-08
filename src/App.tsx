@@ -4,7 +4,10 @@ import { CartProvider } from './context/CartContext';
 import { useSmoothScrolling } from './hooks/useSmoothScrolling';
 import Header from './components/Header';
 import HomePage from './pages/HomePage';
-import { LazyCatalog, LazyProductDetail, LazyCart, LazyThankYou } from './components/LazyRoutes';
+import ProductCatalog from './pages/ProductCatalog';
+import ProductDetail from './pages/ProductDetail';
+import CartPage from './pages/CartPage';
+import ThankYouPage from './pages/ThankYouPage';
 
 function App() {
   useSmoothScrolling();
@@ -16,10 +19,10 @@ function App() {
           <Header />
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/catalog" element={<LazyCatalog />} />
-            <Route path="/product/:id" element={<LazyProductDetail />} />
-            <Route path="/cart" element={<LazyCart />} />
-            <Route path="/thank-you" element={<LazyThankYou />} />
+            <Route path="/catalog" element={<ProductCatalog />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/thank-you" element={<ThankYouPage />} />
           </Routes>
         </div>
       </Router>

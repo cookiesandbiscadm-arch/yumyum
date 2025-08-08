@@ -1,10 +1,10 @@
 import React, { Suspense } from 'react';
 
 // Lazy load route components for code splitting
-const ProductCatalog = React.lazy(() => import('../pages/ProductCatalog'));
-const ProductDetail = React.lazy(() => import('../pages/ProductDetail'));
-const CartPage = React.lazy(() => import('../pages/CartPage'));
-const ThankYouPage = React.lazy(() => import('../pages/ThankYouPage'));
+const ProductCatalog = React.lazy(() => import('../pages/ProductCatalog').then(module => ({ default: module.default })));
+const ProductDetail = React.lazy(() => import('../pages/ProductDetail').then(module => ({ default: module.default })));
+const CartPage = React.lazy(() => import('../pages/CartPage').then(module => ({ default: module.default })));
+const ThankYouPage = React.lazy(() => import('../pages/ThankYouPage').then(module => ({ default: module.default })));
 
 // Loading fallback component
 const RouteLoader: React.FC = () => (
