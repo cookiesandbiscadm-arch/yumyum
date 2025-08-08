@@ -141,7 +141,7 @@ const ThankYouPage: React.FC = () => {
             transition={{ delay: 1.1, duration: 0.8 }}
             className="font-poppins text-xl text-textBody mb-8"
           >
-            Thank you for choosing YumYum Biscuits! Your delicious treats will be delivered 
+            Thank you for choosing Diskos Biscuits! Your delicious treats will be delivered 
             with extra love and magic sprinkles. 
           </motion.p>
 

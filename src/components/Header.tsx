@@ -14,17 +14,17 @@ const Header: React.FC = () => {
     <motion.header 
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b-2 border-magic-pink/20"
+      className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b-2 border-gradient-to-r from-pink-200 to-purple-200 shadow-lg shadow-pink-500/10"
     >
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-magic-pink to-magic-purple rounded-full flex items-center justify-center">
-              <span className="text-2xl">🍪</span>
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className="w-12 h-12 bg-gradient-to-r from-magic-pink via-magic-purple to-magic-orange rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300 animate-pulse">
+              <span className="text-3xl group-hover:animate-spin transition-all duration-300">🍪</span>
             </div>
             <div>
-              <h1 className="font-fredoka text-2xl font-bold magic-text">YumYum</h1>
-              <p className="text-xs text-textBody -mt-1">Biscuits</p>
+              <h1 className="font-fredoka text-3xl font-bold bg-gradient-to-r from-magic-pink via-magic-purple to-magic-orange bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">Diskos</h1>
+              <p className="text-sm text-textBody -mt-1 font-medium">✨ Magical Biscuits</p>
             </div>
           </Link>
 
@@ -50,16 +50,16 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-4">
             <Link
               to="/cart"
-              className="relative p-2 text-textBody hover:text-magic-pink transition-colors"
+              className="relative p-3 bg-gradient-to-r from-pink-100 to-purple-100 hover:from-pink-200 hover:to-purple-200 rounded-full text-textBody hover:text-magic-pink transition-all duration-300 transform hover:scale-110 shadow-md hover:shadow-lg group"
               aria-label={`Cart (${itemCount} items)`}
               title={itemCount ? `${itemCount} item${itemCount>1?'s':''} in cart` : 'Cart'}
             >
-              <ShoppingCart size={24} />
+              <ShoppingCart size={24} className="group-hover:animate-bounce" />
               {state.items.length > 0 && (
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="absolute -top-1 -right-1 bg-magic-pink text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
+                  className="absolute -top-2 -right-2 bg-gradient-to-r from-magic-pink to-magic-orange text-white text-sm rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg animate-pulse"
                 >
                   {itemCount}
                 </motion.span>

@@ -4,11 +4,14 @@ import { formatINR } from '../lib/format';
 import { Plus } from 'lucide-react';
 import { fetchCategories, fetchProducts } from '../lib/api';
 import { useCart } from '../context/CartContext';
+import { useToast } from '../context/ToastContext';
+import { ProductCardSkeleton } from './LoadingSkeleton';
 
 const ProductCarousel: React.FC = () => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
   const { addItem } = useCart();
+  const { showToast } = useToast();
   const [products, setProducts] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -90,14 +93,26 @@ const ProductCarousel: React.FC = () => {
     };
   }, [products.length]);
 
-  const handleAddToCart = async (product: any, event: React.MouseEvent) => {
-    event.stopPropagation();
-    addItem(product);
+  const handleAddToCart = async (product: any, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     
-    // Bounce animation (composited)
-    const { gsap } = await import('gsap');
-    const target = event.currentTarget as HTMLElement;
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      description: product.description,
+      category_id: product.category_id,
+      full_image_url: product.full_image_url || product.image_url
+    });
+
+    // Show toast notification
+    showToast(`🍪 ${product.name} added to cart!`, 'success', 2500);
+
+    // Add visual feedback
+    const target = e.currentTarget as HTMLElement;
     target.style.willChange = 'transform';
+    const { gsap } = await import('gsap');
     gsap.to(target, {
       scale: 1.05,
       duration: 0.2,
@@ -164,12 +179,20 @@ const ProductCarousel: React.FC = () => {
         <div className="product-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {error ? (
             <div className="col-span-full text-center text-red-500 py-12">{error}</div>
-          ) : loading ? null : products.length === 0 ? null : products.slice(0, 3).map((product) => (
+          ) : loading ? (
+            // Beautiful loading skeletons
+            Array.from({ length: 3 }).map((_, index) => (
+              <ProductCardSkeleton key={index} />
+            ))
+          ) : products.length === 0 ? (
+            <div className="col-span-full text-center text-gray-500 py-12">No products available</div>
+          ) : products.slice(0, 3).map((product) => (
             <div
               key={product.id}
-              className="product-card group bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
+              className="product-card group bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg hover:shadow-2xl hover:shadow-pink-500/20 transition-all duration-500 transform hover:-translate-y-3 hover:rotate-1 cursor-pointer border border-white/50 hover:border-pink-200/50"
             >
               <div className="relative overflow-hidden rounded-2xl mb-4">
+                <div className="absolute inset-0 bg-gradient-to-t from-pink-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 rounded-2xl"></div>
                 <img
                   src={product.full_image_url || product.image_url}
                   alt={product.name}
@@ -178,20 +201,27 @@ const ProductCarousel: React.FC = () => {
                   width="300"
                   height="192"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="w-full h-48 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-500 will-change-transform"
+                  className="w-full h-48 object-cover rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-700 will-change-transform"
                 />
                 
-                {/* Floating emoji */}
-                <div className="absolute top-3 left-3 text-3xl animate-bounce">
+                {/* Enhanced floating emoji with animation */}
+                <div className="absolute top-3 left-3 text-3xl animate-bounce group-hover:animate-spin transition-all duration-300">
                   🍪
                 </div>
                 
-                {/* Category tag resolved from category_id via categories map */}
+
+                
+                {/* Enhanced category tag */}
                 {product.category_id && categoryMap[product.category_id] ? (
-                  <div className="absolute bottom-3 left-3 bg-pink-100 text-pink-600 px-3 py-1 rounded-full text-sm font-medium capitalize">
+                  <div className="absolute bottom-3 left-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-full text-sm font-bold capitalize shadow-lg backdrop-blur-sm">
                     {categoryMap[product.category_id]}
                   </div>
                 ) : null}
+                
+                {/* New badge for visual interest */}
+                <div className="absolute top-3 right-3 bg-gradient-to-r from-orange-400 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
+                  ✨ Fresh
+                </div>
               </div>
               
                               <h3 className="font-fredoka text-xl font-bold text-textPrimary mb-2">
@@ -204,21 +234,22 @@ const ProductCarousel: React.FC = () => {
               
               {/* Reviews removed */}
               
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="font-poppins font-extrabold text-2xl text-accent1">
+              <div className="flex items-center justify-between mt-auto">
+                <div className="flex flex-col">
+                  <span className="font-fredoka font-bold text-3xl bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
                     {formatINR(product.price)}
                   </span>
-                  <span className="text-sm text-gray-500 ml-1">/ biscuit</span>
+                  <span className="text-xs text-gray-500 font-medium">per delicious biscuit</span>
                 </div>
                 
                 <div className="flex gap-2">
                   <button
                     onClick={(e) => handleAddToCart(product, e)}
-                    className="bg-gradient-to-r from-pink-500 to-orange-500 text-white px-4 py-2 rounded-full font-medium hover:from-pink-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 flex items-center gap-1"
+                    className="bg-gradient-to-r from-pink-500 via-purple-500 to-orange-500 text-white px-5 py-3 rounded-full font-bold hover:from-pink-600 hover:via-purple-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-110 hover:rotate-3 flex items-center gap-2 shadow-lg hover:shadow-xl group-hover:animate-pulse"
                   >
                     <Plus className="w-4 h-4" />
-                    Add
+                    <span className="hidden sm:inline">Add to Cart</span>
+                    <span className="sm:hidden">Add</span>
                   </button>
                 </div>
               </div>

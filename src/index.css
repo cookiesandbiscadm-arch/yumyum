@@ -68,6 +68,11 @@ p, span, div, button, input, textarea, label {
   50% { background-position: 100% 50%; }
 }
 
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

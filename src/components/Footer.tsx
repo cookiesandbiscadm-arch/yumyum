@@ -105,7 +105,7 @@ const Footer: React.FC = () => {
                 <span className="text-2xl">🍪</span>
               </div>
               <div>
-                <h3 className="font-fredoka text-2xl font-bold">YumYum</h3>
+                <h3 className="font-fredoka text-2xl font-bold">Diskos</h3>
                 <p className="text-sm opacity-90">Biscuits</p>
               </div>
             </div>
@@ -194,10 +194,10 @@ const Footer: React.FC = () => {
             
             <div className="text-center">
               <p className="font-poppins text-sm opacity-90 flex items-center justify-center">
-                Made with <Heart className="w-4 h-4 mx-1 text-red-300" /> by the YumYum Team
+                Made with <Heart className="w-4 h-4 mx-1 text-red-300" /> by the Diskos Team
               </p>
               <p className="font-poppins text-xs opacity-75 mt-1">
-                © 2024 YumYum Biscuits. All rights reserved. 🍪
+                © 2024 Diskos Biscuits. All rights reserved. 🍪
               </p>
             </div>
           </div>
