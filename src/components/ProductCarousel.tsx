@@ -1,63 +1,99 @@
-import React, { useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React, { useRef } from 'react';
 import { Heart, Plus } from 'lucide-react';
 import { fetchProducts } from '../lib/api';
 import { useCart } from '../context/CartContext';
 
-gsap.registerPlugin(ScrollTrigger);
 
 const ProductCarousel: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { addItem } = useCart();
+  const [products, setProducts] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  
+  // Initialize animations only when visible and after products are rendered
+  React.useLayoutEffect(() => {
+    let ctx: any;
+    let initialized = false;
+    const el = sectionRef.current;
+    if (!el) return;
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Animate section title
-      gsap.fromTo('.carousel-title', 
-        { y: 50, opacity: 0 },
-        { 
-          y: 0, 
-          opacity: 1, 
-          duration: 1, 
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: '.carousel-title',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      );
+    const onIntersect: IntersectionObserverCallback = (entries, observer) => {
+      const entry = entries[0];
+      if (!initialized && entry.isIntersecting) {
+        initialized = true;
+        (async () => {
+          const { gsap } = await import('gsap');
+          const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+          gsap.registerPlugin(ScrollTrigger);
 
-      // Animate product cards
-      gsap.fromTo('.product-card', 
-        { y: 100, opacity: 0, scale: 0.8, rotation: -5 },
-        { 
-          y: 0, 
-          opacity: 1, 
-          scale: 1, 
-          rotation: 0,
-          duration: 0.8, 
-          ease: "bounce.out",
-          stagger: 0.2,
-          scrollTrigger: {
-            trigger: '.product-grid',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      );
-    }, sectionRef);
+          ctx = gsap.context(() => {
+            const q = gsap.utils.selector(sectionRef);
 
-    return () => ctx.revert();
-  }, []);
+            // Animate section title (scoped)
+            const title = q('.carousel-title');
+            if (title.length) {
+              gsap.fromTo(title,
+                { y: 50, opacity: 0 },
+                {
+                  y: 0,
+                  opacity: 1,
+                  duration: 1,
+                  ease: 'power3.out',
+                  scrollTrigger: {
+                    trigger: title[0],
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                  }
+                }
+              );
+            }
 
-  const handleAddToCart = (product: any, event: React.MouseEvent) => {
+            // Animate product cards (only if present and scoped)
+            const cards = q('.product-card');
+            const grid = q('.product-grid')[0];
+            if (cards.length && grid) {
+              gsap.fromTo(cards,
+                { y: 100, opacity: 0, scale: 0.8, rotation: -5 },
+                {
+                  y: 0,
+                  opacity: 1,
+                  scale: 1,
+                  rotation: 0,
+                  duration: 0.8,
+                  ease: 'bounce.out',
+                  stagger: 0.2,
+                  scrollTrigger: {
+                    trigger: grid,
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                  }
+                }
+              );
+            }
+          }, sectionRef);
+
+          // Do not call ScrollTrigger.refresh() here to avoid invalid scopes while hidden
+        })();
+        observer.disconnect();
+      }
+    };
+
+    const observer = new IntersectionObserver(onIntersect, { threshold: 0.1 });
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      ctx?.revert?.();
+    };
+  }, [products.length]);
+
+  const handleAddToCart = async (product: any, event: React.MouseEvent) => {
     event.stopPropagation();
     addItem(product);
     
     // Bounce animation
+    const { gsap } = await import('gsap');
     gsap.to(event.currentTarget, {
       scale: 1.05,
       duration: 0.2,
@@ -67,10 +103,11 @@ const ProductCarousel: React.FC = () => {
     });
   };
 
-  const handleLike = (event: React.MouseEvent) => {
+  const handleLike = async (event: React.MouseEvent) => {
     event.stopPropagation();
     const heart = event.currentTarget.querySelector('.heart-icon');
     if (heart) {
+      const { gsap } = await import('gsap');
       gsap.to(heart, {
         scale: 1.3,
         duration: 0.3,
@@ -81,10 +118,7 @@ const ProductCarousel: React.FC = () => {
     }
   };
 
-  const [products, setProducts] = React.useState<any[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-
+  
   React.useEffect(() => {
     setLoading(true);
     setError(null);
@@ -95,25 +129,27 @@ const ProductCarousel: React.FC = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-20 bg-gradient-to-b from-pink-50 to-orange-50">
+    <section
+      ref={sectionRef}
+      className="py-20 bg-gradient-to-b from-pink-50 to-orange-50"
+      style={{ contentVisibility: 'auto', containIntrinsicSize: '1200px 900px' }}
+    >
       <div className="container mx-auto px-4">
-        <motion.div className="text-center mb-16">
-                      <h2 className="carousel-title font-fredoka text-4xl md:text-6xl font-bold magic-text mb-4">
+        <div className="text-center mb-16">
+          <h2 className="carousel-title font-fredoka text-4xl md:text-6xl font-bold magic-text mb-4">
             Our Magical Treats ✨
           </h2>
           <p className="font-poppins text-xl text-textBody max-w-2xl mx-auto">
             Each biscuit is crafted with love and sprinkled with happiness
           </p>
-        </motion.div>
+        </div>
 
         <div className="product-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {loading ? (
-            <div className="col-span-full text-center py-12">Loading products...</div>
-          ) : error ? (
+          {error ? (
             <div className="col-span-full text-center text-red-500 py-12">{error}</div>
-          ) : products.length === 0 ? (
+          ) : loading ? null : products.length === 0 ? (
             <div className="col-span-full text-center py-12">No products found.</div>
-          ) : products.slice(0, 6).map((product, index) => (
+          ) : products.slice(0, 6).map((product) => (
             <div
               key={product.id}
               className="product-card group bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
@@ -122,6 +158,8 @@ const ProductCarousel: React.FC = () => {
                 <img
                   src={product.full_image_url || product.image_url}
                   alt={product.name}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-48 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-500"
                 />
                 

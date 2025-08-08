@@ -1,9 +1,4 @@
 import React, { useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const OurStory: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -52,69 +47,109 @@ const OurStory: React.FC = () => {
   ];
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Animate section header
-      gsap.fromTo('.story-header', 
-        { y: 50, opacity: 0 },
-        { 
-          y: 0, 
-          opacity: 1, 
-          duration: 1, 
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: '.story-header',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      );
+    let ctx: any;
+    let initialized = false;
+    const el = sectionRef.current;
+    if (!el) return;
 
-      // Animate story steps
-      storySteps.forEach((step, index) => {
-        const direction = step.side === 'left' ? -100 : 100;
-        
-        gsap.fromTo(`.story-step-${index}`, 
-          { x: direction, opacity: 0, scale: 0.8 },
-          { 
-            x: 0, 
-            opacity: 1, 
-            scale: 1,
-            duration: 0.8, 
-            ease: "back.out(1.7)",
-            scrollTrigger: {
-              trigger: `.story-step-${index}`,
-              start: 'top 85%',
-              toggleActions: 'play none none reverse'
+    const onIntersect: IntersectionObserverCallback = (entries, observer) => {
+      const entry = entries[0];
+      if (!initialized && entry.isIntersecting) {
+        initialized = true;
+        (async () => {
+          const { gsap } = await import('gsap');
+          const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+          gsap.registerPlugin(ScrollTrigger);
+
+          ctx = gsap.context(() => {
+            const q = gsap.utils.selector(sectionRef);
+
+            // Animate section header (scoped)
+            const header = q('.story-header');
+            if (header.length) {
+              gsap.fromTo(header,
+                { y: 50, opacity: 0 },
+                {
+                  y: 0,
+                  opacity: 1,
+                  duration: 1,
+                  ease: 'power3.out',
+                  scrollTrigger: {
+                    trigger: header[0],
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                  }
+                }
+              );
             }
-          }
-        );
 
-        // Animate icons within each step
-        gsap.fromTo(`.story-icon-${index}`, 
-          { scale: 0, rotation: -180, y: 20, opacity: 0 },
-          { 
-            scale: 1, 
-            rotation: 0, 
-            y: 0, 
-            opacity: 1,
-            duration: 0.6, 
-            ease: "bounce.out",
-            delay: 0.3,
-            scrollTrigger: {
-              trigger: `.story-step-${index}`,
-              start: 'top 85%',
-              toggleActions: 'play none none reverse'
-            }
-          }
-        );
-      });
-    }, sectionRef);
+            // Animate story steps
+            storySteps.forEach((step, index) => {
+              const direction = step.side === 'left' ? -100 : 100;
+              const stepEls = q(`.story-step-${index}`);
+              const iconEls = q(`.story-icon-${index}`);
 
-    return () => ctx.revert();
+              if (stepEls.length) {
+                gsap.fromTo(stepEls,
+                  { x: direction, opacity: 0, scale: 0.8 },
+                  {
+                    x: 0,
+                    opacity: 1,
+                    scale: 1,
+                    duration: 0.8,
+                    ease: 'back.out(1.7)',
+                    scrollTrigger: {
+                      trigger: stepEls[0],
+                      start: 'top 85%',
+                      toggleActions: 'play none none reverse'
+                    }
+                  }
+                );
+              }
+
+              if (stepEls.length && iconEls.length) {
+                gsap.fromTo(iconEls,
+                  { scale: 0, rotation: -180, y: 20, opacity: 0 },
+                  {
+                    scale: 1,
+                    rotation: 0,
+                    y: 0,
+                    opacity: 1,
+                    duration: 0.6,
+                    ease: 'bounce.out',
+                    delay: 0.3,
+                    scrollTrigger: {
+                      trigger: stepEls[0],
+                      start: 'top 85%',
+                      toggleActions: 'play none none reverse'
+                    }
+                  }
+                );
+              }
+            });
+          }, sectionRef);
+
+          // No explicit ScrollTrigger.refresh() to avoid invalid scopes while hidden
+        })();
+        observer.disconnect();
+      }
+    };
+
+    const observer = new IntersectionObserver(onIntersect, { threshold: 0.1 });
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      ctx?.revert?.();
+    };
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-20 bg-gradient-to-b from-blue-50 to-yellow-50 overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="py-20 bg-gradient-to-b from-blue-50 to-yellow-50 overflow-hidden"
+      style={{ contentVisibility: 'auto', containIntrinsicSize: '1200px 1200px' }}
+    >
       <div className="container mx-auto px-4">
         <div className="story-header text-center mb-16">
                       <h2 className="font-fredoka text-4xl md:text-6xl font-bold magic-text mb-4">

@@ -1,52 +1,85 @@
 import React, { useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Heart, Mail, Phone, MapPin } from 'lucide-react';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const Footer: React.FC = () => {
   const footerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Animate floating particles
-      gsap.to('.floating-particle', {
-        y: -20,
-        x: 'random(-30, 30)',
-        duration: 'random(2, 5)',
-        ease: "sine.inOut",
-        yoyo: true,
-        repeat: -1,
-        stagger: {
-          amount: 2,
-          from: "random"
-        }
-      });
+    let ctx: any;
+    let initialized = false;
+    const el = footerRef.current;
+    if (!el) return;
 
-      // Animate footer content
-      gsap.fromTo('.footer-content', 
-        { y: 50, opacity: 0 },
-        { 
-          y: 0, 
-          opacity: 1, 
-          duration: 1, 
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: '.footer-content',
-            start: 'top 90%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      );
-    }, footerRef);
+    const onIntersect: IntersectionObserverCallback = (entries, observer) => {
+      const entry = entries[0];
+      if (!initialized && entry.isIntersecting) {
+        initialized = true;
+        (async () => {
+          const { gsap } = await import('gsap');
+          const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+          gsap.registerPlugin(ScrollTrigger);
 
-    return () => ctx.revert();
+          ctx = gsap.context(() => {
+            const q = gsap.utils.selector(footerRef);
+
+            // Animate floating particles (scoped)
+            const particles = q('.floating-particle');
+            if (particles.length) {
+              gsap.to(particles, {
+                y: -20,
+                x: 'random(-30, 30)',
+                duration: 'random(2, 5)',
+                ease: 'sine.inOut',
+                yoyo: true,
+                repeat: -1,
+                stagger: {
+                  amount: 2,
+                  from: 'random'
+                }
+              });
+            }
+
+            // Animate footer content (scoped)
+            const content = q('.footer-content');
+            if (content.length) {
+              gsap.fromTo(content,
+                { y: 50, opacity: 0 },
+                {
+                  y: 0,
+                  opacity: 1,
+                  duration: 1,
+                  ease: 'power3.out',
+                  scrollTrigger: {
+                    trigger: content[0],
+                    start: 'top 90%',
+                    toggleActions: 'play none none reverse'
+                  }
+                }
+              );
+            }
+          }, footerRef);
+
+          // Avoid ScrollTrigger.refresh() while hidden by content-visibility
+        })();
+        observer.disconnect();
+      }
+    };
+
+    const observer = new IntersectionObserver(onIntersect, { threshold: 0.1 });
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      ctx?.revert?.();
+    };
   }, []);
 
   return (
-    <footer ref={footerRef} className="relative bg-gradient-to-br from-pink-400 via-purple-500 to-orange-400 text-white overflow-hidden">
+    <footer
+      ref={footerRef}
+      className="relative bg-gradient-to-br from-pink-400 via-purple-500 to-orange-400 text-white overflow-hidden"
+      style={{ contentVisibility: 'auto', containIntrinsicSize: '900px 600px' }}
+    >
       {/* Floating Particles */}
       <div className="absolute inset-0 pointer-events-none">
         {[...Array(15)].map((_, i) => (

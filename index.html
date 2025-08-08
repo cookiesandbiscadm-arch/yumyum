@@ -89,18 +89,21 @@
     <script type="module" src="/src/main.tsx"></script>
     
     <script>
-      // Hide loading screen when page is loaded
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          const loadingScreen = document.getElementById('loading-screen');
-          if (loadingScreen) {
-            loadingScreen.style.opacity = '0';
-            setTimeout(() => {
-              loadingScreen.style.display = 'none';
-            }, 500);
-          }
-        }, 1500);
-      });
+      // Hide loading screen as soon as possible after first paint
+      const hideLoading = () => {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+          loadingScreen.style.opacity = '0';
+          setTimeout(() => {
+            loadingScreen.style.display = 'none';
+          }, 300);
+        }
+      };
+      if (document.readyState === 'complete') {
+        requestAnimationFrame(() => requestAnimationFrame(hideLoading));
+      } else {
+        window.addEventListener('load', () => requestAnimationFrame(() => requestAnimationFrame(hideLoading)));
+      }
     </script>
   </body>
 </html>

@@ -1,42 +1,9 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Check, Plus, Minus } from 'lucide-react';
-
-gsap.registerPlugin(ScrollTrigger);
+import React, { useRef, useEffect } from 'react';
 
 const BuySection: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [selectedPackage, setSelectedPackage] = useState('family');
-  const [quantity, setQuantity] = useState(1);
-
-  const packages = [
-    {
-      id: 'starter',
-      name: 'Starter Pack',
-      price: 12.99,
-      biscuits: 6,
-      description: 'Perfect for trying our flavors',
-      popular: false
-    },
-    {
-      id: 'family',
-      name: 'Family Pack',
-      price: 24.99,
-      biscuits: 15,
-      description: 'Great for sharing with family',
-      popular: true
-    },
-    {
-      id: 'party',
-      name: 'Party Pack',
-      price: 39.99,
-      biscuits: 30,
-      description: 'Perfect for celebrations',
-      popular: false
-    }
-  ];
+  // No local state needed in this lightweight section
+ 
 
   const features = [
     { icon: '🚚', title: 'Free Delivery', description: 'Straight to your door!' },
@@ -46,50 +13,88 @@ const BuySection: React.FC = () => {
   ];
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Animate main container
-      gsap.fromTo('.buy-container', 
-        { y: 100, opacity: 0, scale: 0.9 },
-        { 
-          y: 0, 
-          opacity: 1, 
-          scale: 1,
-          duration: 1, 
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: '.buy-container',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      );
+    let ctx: any;
+    let initialized = false;
+    const el = sectionRef.current;
+    if (!el) return;
 
-      // Animate features
-      gsap.fromTo('.feature-item', 
-        { y: 50, opacity: 0 },
-        { 
-          y: 0, 
-          opacity: 1,
-          duration: 0.8, 
-          stagger: 0.2,
-          ease: "bounce.out",
-          scrollTrigger: {
-            trigger: '.features-grid',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      );
-    }, sectionRef);
+    const onIntersect: IntersectionObserverCallback = (entries, observer) => {
+      const entry = entries[0];
+      if (!initialized && entry.isIntersecting) {
+        initialized = true;
+        (async () => {
+          const { gsap } = await import('gsap');
+          const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+          gsap.registerPlugin(ScrollTrigger);
 
-    return () => ctx.revert();
+          ctx = gsap.context(() => {
+            const q = gsap.utils.selector(sectionRef);
+
+            // Animate main container (scoped)
+            const container = q('.buy-container');
+            if (container.length) {
+              gsap.fromTo(container,
+                { y: 100, opacity: 0, scale: 0.9 },
+                {
+                  y: 0,
+                  opacity: 1,
+                  scale: 1,
+                  duration: 1,
+                  ease: 'power3.out',
+                  scrollTrigger: {
+                    trigger: container[0],
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                  }
+                }
+              );
+            }
+
+            // Animate features (scoped)
+            const features = q('.feature-item');
+            const featuresGrid = q('.features-grid')[0];
+            if (features.length && featuresGrid) {
+              gsap.fromTo(features,
+                { y: 50, opacity: 0 },
+                {
+                  y: 0,
+                  opacity: 1,
+                  duration: 0.8,
+                  stagger: 0.2,
+                  ease: 'bounce.out',
+                  scrollTrigger: {
+                    trigger: featuresGrid,
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                  }
+                }
+              );
+            }
+          }, sectionRef);
+
+          // Avoid ScrollTrigger.refresh() while hidden by content-visibility
+        })();
+        observer.disconnect();
+      }
+    };
+
+    const observer = new IntersectionObserver(onIntersect, { threshold: 0.1 });
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      ctx?.revert?.();
+    };
   }, []);
 
-  const selectedPkg = packages.find(pkg => pkg.id === selectedPackage);
-  const totalPrice = selectedPkg ? selectedPkg.price * quantity : 0;
+  // Derived pricing removed (unused)
 
   return (
-    <section ref={sectionRef} className="py-20 bg-gradient-to-b from-blue-50 to-pink-50">
+    <section
+      ref={sectionRef}
+      className="py-20 bg-gradient-to-b from-blue-50 to-pink-50"
+      style={{ contentVisibility: 'auto', containIntrinsicSize: '1100px 900px' }}
+    >
       <div className="container mx-auto px-4">
         <div className="buy-container max-w-6xl mx-auto">
 

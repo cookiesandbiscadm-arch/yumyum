@@ -1,6 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { gsap } from 'gsap';
+import { useRef, useEffect, useState } from 'react';
 
 // Floating Biscuit Component (CSS-based 3D effect)
 function FloatingBiscuit({ position, onClick, delay = 0 }: { 
@@ -12,30 +10,33 @@ function FloatingBiscuit({ position, onClick, delay = 0 }: {
   const [hovered, setHovered] = useState(false);
   
   useEffect(() => {
-    if (biscuitRef.current) {
+    const start = async () => {
+      if (!biscuitRef.current) return;
+      const { gsap } = await import('gsap');
       // Floating animation
       gsap.to(biscuitRef.current, {
         y: -20,
         duration: 2 + Math.random(),
         repeat: -1,
         yoyo: true,
-        ease: "sine.inOut",
+        ease: 'sine.inOut',
         delay: delay
       });
-      
       // Rotation animation
       gsap.to(biscuitRef.current, {
         rotation: 360,
         duration: 8 + Math.random() * 4,
         repeat: -1,
-        ease: "none",
+        ease: 'none',
         delay: delay * 0.5
       });
-    }
+    };
+    (window as any).requestIdleCallback ? (window as any).requestIdleCallback(start) : setTimeout(start, 0);
   }, [delay]);
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (biscuitRef.current && onClick) {
+      const { gsap } = await import('gsap');
       gsap.to(biscuitRef.current, {
         scale: 1.3,
         duration: 0.3,
@@ -81,25 +82,27 @@ function CandyCloud({ position, delay = 0 }: {
   const cloudRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
-    if (cloudRef.current) {
+    const start = async () => {
+      if (!cloudRef.current) return;
+      const { gsap } = await import('gsap');
       gsap.to(cloudRef.current, {
         x: 30,
         duration: 2 + Math.random(),
         repeat: -1,
         yoyo: true,
-        ease: "sine.inOut",
+        ease: 'sine.inOut',
         delay: delay
       });
-      
       gsap.to(cloudRef.current, {
         y: -15,
         duration: 1.5 + Math.random() * 0.5,
         repeat: -1,
         yoyo: true,
-        ease: "sine.inOut",
+        ease: 'sine.inOut',
         delay: delay * 0.7
       });
-    }
+    };
+    (window as any).requestIdleCallback ? (window as any).requestIdleCallback(start) : setTimeout(start, 0);
   }, [delay]);
 
   return (
@@ -128,24 +131,26 @@ function Star({ position, delay = 0 }: {
   const starRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
-    if (starRef.current) {
+    const start = async () => {
+      if (!starRef.current) return;
+      const { gsap } = await import('gsap');
       gsap.to(starRef.current, {
         rotation: 360,
         duration: 3 + Math.random() * 2,
         repeat: -1,
-        ease: "none",
+        ease: 'none',
         delay: delay
       });
-      
       gsap.to(starRef.current, {
         scale: 1.2,
         duration: 1.5,
         repeat: -1,
         yoyo: true,
-        ease: "sine.inOut",
+        ease: 'sine.inOut',
         delay: delay * 0.5
       });
-    }
+    };
+    (window as any).requestIdleCallback ? (window as any).requestIdleCallback(start) : setTimeout(start, 0);
   }, [delay]);
 
   return (
@@ -169,17 +174,19 @@ function CameraController({ scrollY }: { scrollY: number }) {
   const sceneRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
-    if (sceneRef.current) {
+    const run = async () => {
+      if (!sceneRef.current) return;
+      const { gsap } = await import('gsap');
       const parallaxX = Math.sin(scrollY * 0.001) * 20;
       const parallaxY = scrollY * 0.1;
-      
       gsap.to(sceneRef.current, {
         x: parallaxX,
         y: -parallaxY,
         duration: 1,
         ease: "power2.out"
       });
-    }
+    };
+    run();
   }, [scrollY]);
   
   return <div ref={sceneRef} className="absolute inset-0 transform-gpu" />;
@@ -187,6 +194,7 @@ function CameraController({ scrollY }: { scrollY: number }) {
 
 export default function Hero3D() {
   const [scrollY, setScrollY] = useState(0);
+  const [mounted, setMounted] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -196,6 +204,11 @@ export default function Hero3D() {
     
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Mark mounted to enable non-critical visual effects after first paint
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   // Generate random positions for floating elements
@@ -266,16 +279,11 @@ export default function Hero3D() {
       {/* Hero Text Overlay */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
         <div className="text-center px-4 max-w-4xl">
-          <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ duration: 1, ease: "backOut" }}
-            className="mb-6"
-          >
+          <div className="mb-6">
             <span className="text-8xl md:text-9xl block mb-4">🍪</span>
-          </motion.div>
+          </div>
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-lg">
+          <h1 className={`text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 ${mounted ? 'drop-shadow-lg' : ''}`}>
             Bite into a World of Joy!
           </h1>
           <p className="text-lg md:text-xl lg:text-2xl text-white/90 mb-8 drop-shadow">
