@@ -29,7 +29,29 @@ const ProductDetail: React.FC = () => {
         .eq('id', id)
         .single();
       if (error) setError(error.message || 'Failed to load product.');
-      setProduct(data);
+      // Normalize nutrition in case the view exposes flat columns
+      const normalized = data
+        ? {
+            ...data,
+            nutrition:
+              data?.nutrition ?? {
+                calories: (data as any)?.calories ?? (data as any)?.nutrition_calories ?? null,
+                sugar: (data as any)?.sugar ?? (data as any)?.nutrition_sugar ?? null,
+                protein: (data as any)?.protein ?? (data as any)?.nutrition_protein ?? null,
+              },
+          }
+        : null;
+      // If all fields are null, drop nutrition to avoid showing placeholders unnecessarily
+      if (
+        normalized &&
+        normalized.nutrition &&
+        normalized.nutrition.calories == null &&
+        normalized.nutrition.sugar == null &&
+        normalized.nutrition.protein == null
+      ) {
+        (normalized as any).nutrition = undefined;
+      }
+      setProduct(normalized);
       setLoading(false);
     }
     fetchProduct();
@@ -183,21 +205,21 @@ const ProductDetail: React.FC = () => {
                 <div className="text-center">
                   <div className="text-2xl mb-1">⚡</div>
                   <div className="font-poppins font-bold text-textPrimary">
-                    {product.nutrition.calories}
+                    {product?.nutrition?.calories ?? '—'}
                   </div>
                   <div className="text-sm text-textBody">Calories</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl mb-1">🍯</div>
                   <div className="font-poppins font-bold text-textPrimary">
-                    {product.nutrition.sugar}g
+                    {product?.nutrition?.sugar ?? '—'}g
                   </div>
                   <div className="text-sm text-textBody">Sugar</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl mb-1">💪</div>
                   <div className="font-poppins font-bold text-textPrimary">
-                    {product.nutrition.protein}g
+                    {product?.nutrition?.protein ?? '—'}g
                   </div>
                   <div className="text-sm text-textBody">Protein</div>
                 </div>

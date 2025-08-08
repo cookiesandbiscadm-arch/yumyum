@@ -147,9 +147,7 @@ const ProductCarousel: React.FC = () => {
         <div className="product-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {error ? (
             <div className="col-span-full text-center text-red-500 py-12">{error}</div>
-          ) : loading ? null : products.length === 0 ? (
-            <div className="col-span-full text-center py-12">No products found.</div>
-          ) : products.slice(0, 6).map((product) => (
+          ) : loading ? null : products.length === 0 ? null : products.slice(0, 6).map((product) => (
             <div
               key={product.id}
               className="product-card group bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"

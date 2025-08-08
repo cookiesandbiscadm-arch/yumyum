@@ -83,9 +83,7 @@ const ProductCatalog: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {error ? (
             <div className="col-span-full text-center text-red-500 py-12">{error}</div>
-          ) : loading ? null : filteredProducts.length === 0 ? (
-            <div className="col-span-full text-center py-12">No products found.</div>
-          ) : filteredProducts.map((product, index) => (
+          ) : loading ? null : filteredProducts.length === 0 ? null : filteredProducts.map((product, index) => (
             <motion.div
               key={product.id}
               layout
