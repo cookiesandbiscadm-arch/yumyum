@@ -1,16 +1,18 @@
-import React, { useRef } from 'react';
-import { Heart, Plus } from 'lucide-react';
-import { fetchProducts } from '../lib/api';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { formatINR } from '../lib/format';
+import { Plus } from 'lucide-react';
+import { fetchCategories, fetchProducts } from '../lib/api';
 import { useCart } from '../context/CartContext';
 
-
 const ProductCarousel: React.FC = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
   const { addItem } = useCart();
   const [products, setProducts] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  
+
   // Initialize animations only when visible and after products are rendered
   React.useLayoutEffect(() => {
     let ctx: any;
@@ -103,29 +105,39 @@ const ProductCarousel: React.FC = () => {
     });
   };
 
-  const handleLike = async (event: React.MouseEvent) => {
-    event.stopPropagation();
-    const heart = event.currentTarget.querySelector('.heart-icon');
-    if (heart) {
-      const { gsap } = await import('gsap');
-      gsap.to(heart, {
-        scale: 1.3,
-        duration: 0.3,
-        ease: "bounce.out",
-        yoyo: true,
-        repeat: 1
-      });
-    }
-  };
+  // Like feature removed per request
 
-  
-  React.useEffect(() => {
-    setLoading(true);
-    setError(null);
+  // Fetch products on mount with caching handled in api.ts
+  useEffect(() => {
+    let mounted = true;
     fetchProducts()
-      .then(prods => setProducts(prods))
-      .catch(e => setError(e.message || 'Failed to load products.'))
-      .finally(() => setLoading(false));
+      .then((data) => {
+        if (!mounted) return;
+        setProducts(data || []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (!mounted) return;
+        setError(err.message || 'Failed to load products');
+        setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Fetch categories to resolve category_id -> name without altering DB/view
+  useEffect(() => {
+    let mounted = true;
+    fetchCategories()
+      .then((cats) => {
+        if (!mounted || !cats) return;
+        const map: Record<string, string> = {};
+        for (const c of cats) if (c && c.id) map[c.id] = c.name;
+        setCategoryMap(map);
+      })
+      .catch(() => {/* ignore */});
+    return () => { mounted = false; };
   }, []);
 
   return (
@@ -147,7 +159,7 @@ const ProductCarousel: React.FC = () => {
         <div className="product-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {error ? (
             <div className="col-span-full text-center text-red-500 py-12">{error}</div>
-          ) : loading ? null : products.length === 0 ? null : products.slice(0, 6).map((product) => (
+          ) : loading ? null : products.length === 0 ? null : products.slice(0, 3).map((product) => (
             <div
               key={product.id}
               className="product-card group bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
@@ -166,18 +178,12 @@ const ProductCarousel: React.FC = () => {
                   🍪
                 </div>
                 
-                {/* Like button */}
-                <button
-                  onClick={handleLike}
-                  className="absolute top-3 right-3 p-2 bg-white/90 rounded-full hover:bg-white transition-colors duration-200"
-                >
-                  <Heart className="heart-icon w-5 h-5 text-gray-400 hover:text-red-500 transition-colors duration-200" />
-                </button>
-                
-                {/* Flavor tag */}
-                <div className="absolute bottom-3 left-3 bg-pink-100 text-pink-600 px-3 py-1 rounded-full text-sm font-medium capitalize">
-                  {product.category}
-                </div>
+                {/* Category tag resolved from category_id via categories map */}
+                {product.category_id && categoryMap[product.category_id] ? (
+                  <div className="absolute bottom-3 left-3 bg-pink-100 text-pink-600 px-3 py-1 rounded-full text-sm font-medium capitalize">
+                    {categoryMap[product.category_id]}
+                  </div>
+                ) : null}
               </div>
               
                               <h3 className="font-fredoka text-xl font-bold text-textPrimary mb-2">
@@ -188,22 +194,12 @@ const ProductCarousel: React.FC = () => {
                 {product.description}
               </p>
               
-              {/* Rating */}
-              <div className="flex items-center mb-4">
-                <div className="flex text-yellow-400">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i} className="text-lg">⭐</span>
-                  ))}
-                </div>
-                <span className="ml-2 text-sm text-gray-600 bg-yellow-100 px-2 py-1 rounded-full">
-                  4.9 (127)
-                </span>
-              </div>
+              {/* Reviews removed */}
               
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="font-fredoka font-bold text-2xl text-green-600">
-                    ${product.price}
+                  <span className="font-poppins font-extrabold text-2xl text-accent1">
+                    {formatINR(product.price)}
                   </span>
                   <span className="text-sm text-gray-500 ml-1">/ biscuit</span>
                 </div>
@@ -223,9 +219,14 @@ const ProductCarousel: React.FC = () => {
         </div>
 
         <div className="text-center">
-                          <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full font-fredoka font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105">
+          <Link
+            to="/catalog"
+            className="inline-block bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full font-fredoka font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105"
+            aria-label="View all products"
+            title="View all products"
+          >
             🍪 View All Products
-          </button>
+          </Link>
         </div>
       </div>
     </section>

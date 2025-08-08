@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Heart } from 'lucide-react';
+import { ArrowRight, Home } from 'lucide-react';
 
 const ThankYouPage: React.FC = () => {
   const location = useLocation();
@@ -163,7 +163,7 @@ const ThankYouPage: React.FC = () => {
               to="/"
               className="bg-white/80 backdrop-blur-sm text-textPrimary px-8 py-4 rounded-full font-poppins font-semibold text-lg hover:bg-white transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
             >
-              <Heart className="w-5 h-5 text-accent2" />
+              <Home className="w-5 h-5 text-accent2" />
               Back to Home
             </Link>
           </motion.div>

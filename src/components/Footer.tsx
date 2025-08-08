@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Heart, Mail, Phone, MapPin } from 'lucide-react';
+import { Heart, Mail, Phone, MapPin, Instagram, Twitter, Facebook, Music } from 'lucide-react';
 
 const Footer: React.FC = () => {
   const footerRef = useRef<HTMLDivElement>(null);
@@ -173,14 +173,21 @@ const Footer: React.FC = () => {
         {/* Social Links */}
         <div className="border-t border-white/20 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex space-x-6 mb-4 md:mb-0">
-              {['🎵', '📸', '🐦', '📘'].map((emoji, index) => (
+            <div className="flex space-x-3 mb-4 md:mb-0">
+              {[
+                { Icon: Music, label: 'TikTok', href: '#' },
+                { Icon: Instagram, label: 'Instagram', href: '#' },
+                { Icon: Twitter, label: 'Twitter', href: '#' },
+                { Icon: Facebook, label: 'Facebook', href: '#' },
+              ].map(({ Icon, label, href }) => (
                 <a
-                  key={index}
-                  href="#"
-                  className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  title={label}
+                  className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/80 transition-all duration-300 transform hover:scale-110"
                 >
-                  <span className="text-lg">{emoji}</span>
+                  <Icon className="w-5 h-5 text-white" />
                 </a>
               ))}
             </div>

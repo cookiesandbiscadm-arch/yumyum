@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Star, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { fetchProducts, fetchCategories } from '../lib/api';
+import { formatINR } from '../lib/format';
 import { useCart } from '../context/CartContext';
 
 const ProductCatalog: React.FC = () => {
@@ -12,6 +13,7 @@ const ProductCatalog: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { addItem } = useCart();
+  const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -24,6 +26,9 @@ const ProductCatalog: React.FC = () => {
           fetchProducts()
         ]);
         setCategories([{ id: 'all', name: 'All Treats', emoji: '🍪' }, ...cats]);
+        const map: Record<string, string> = {};
+        for (const c of cats) if (c && c.id) map[c.id] = c.name;
+        setCategoryMap(map);
         setProducts(prods);
       } catch (err: any) {
         setError(err.message || 'Failed to load data.');
@@ -101,15 +106,16 @@ const ProductCatalog: React.FC = () => {
                     className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                 </Link>
-                <div className="absolute top-3 right-3">
-                  <motion.div
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.5 }}
-                    className="bg-white/90 rounded-full p-2"
-                  >
-                    <Star className="w-5 h-5 text-primary fill-current" />
-                  </motion.div>
+                {/* Reviews removed */}
+
+              {/* Category badge (resolved via category_id) */}
+              {product.category_id && categoryMap[product.category_id] ? (
+                <div className="mt-2">
+                  <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-poppins font-medium capitalize">
+                    {categoryMap[product.category_id]}
+                  </span>
                 </div>
+              ) : null}
                 
                 {/* Sparkles on hover */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -148,8 +154,8 @@ const ProductCatalog: React.FC = () => {
               </p>
               
               <div className="flex items-center justify-between">
-                <span className="font-poppins font-bold text-2xl text-primary">
-                  ${product.price}
+                <span className="font-poppins font-extrabold text-2xl text-accent1">
+                  {formatINR(product.price)}
                 </span>
                 
                 <div className="flex gap-2">

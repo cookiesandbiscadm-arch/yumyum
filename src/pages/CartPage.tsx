@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { formatINR } from '../lib/format';
 import { submitOrder } from '../lib/api';
 
 const CartPage: React.FC = () => {
@@ -59,7 +60,8 @@ const handleCheckout = async (e: React.FormEvent) => {
           </p>
           <Link
             to="/catalog"
-            className="bg-primary text-white px-8 py-4 rounded-full font-poppins font-semibold text-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 inline-flex items-center gap-2"
+            aria-label="Start Shopping"
+            className="bg-accent1 text-white px-10 py-4 rounded-full font-poppins font-extrabold text-2xl shadow-lg hover:bg-accent1/90 transition-all duration-300 transform hover:scale-105 inline-flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-accent1/70"
           >
             <ShoppingBag className="w-5 h-5" />
             Start Shopping
@@ -144,7 +146,7 @@ const handleCheckout = async (e: React.FormEvent) => {
                         {item.name}
                       </h3>
                       <p className="text-textBody text-sm mb-2">
-                        ${item.price} each
+                        {formatINR(item.price)} each
                       </p>
                       <div className="flex items-center gap-2">
                         <button
@@ -166,8 +168,8 @@ const handleCheckout = async (e: React.FormEvent) => {
                     </div>
                     
                     <div className="text-right">
-                      <div className="font-poppins font-bold text-xl text-primary mb-2">
-                        ${(item.price * item.quantity).toFixed(2)}
+                      <div className="font-poppins font-extrabold text-xl text-accent1 mb-2">
+                        {formatINR(item.price * item.quantity)}
                       </div>
                       <button
                         onClick={() => removeItem(item.id)}
@@ -199,7 +201,7 @@ const handleCheckout = async (e: React.FormEvent) => {
                   Items ({state.items.reduce((sum, item) => sum + item.quantity, 0)})
                 </span>
                 <span className="font-poppins font-medium">
-                  ${state.total.toFixed(2)}
+                  {formatINR(state.total)}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -211,8 +213,8 @@ const handleCheckout = async (e: React.FormEvent) => {
                 <span className="font-poppins font-bold text-textPrimary text-lg">
                   Total
                 </span>
-                <span className="font-poppins font-bold text-primary text-2xl">
-                  ${state.total.toFixed(2)}
+                <span className="font-poppins font-extrabold text-accent1 text-2xl">
+                  {formatINR(state.total)}
                 </span>
               </div>
             </div>

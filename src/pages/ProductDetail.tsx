@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Plus, Minus, Heart, Star } from 'lucide-react';
+import { ArrowLeft, Plus, Minus } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useCart } from '../context/CartContext';
+import { fetchCategories } from '../lib/api';
+import { formatINR } from '../lib/format';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [isLiked, setIsLiked] = useState(false);
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,6 +18,7 @@ const ProductDetail: React.FC = () => {
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [relatedLoading, setRelatedLoading] = useState(true);
   const [relatedError, setRelatedError] = useState<string | null>(null);
+  const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -56,6 +58,20 @@ const ProductDetail: React.FC = () => {
     }
     fetchProduct();
   }, [id]);
+
+  // Resolve category name without DB/view changes
+  useEffect(() => {
+    let mounted = true;
+    fetchCategories()
+      .then((cats) => {
+        if (!mounted || !cats) return;
+        const map: Record<string, string> = {};
+        for (const c of cats) if (c && c.id) map[c.id] = c.name;
+        setCategoryMap(map);
+      })
+      .catch(() => {/* ignore */});
+    return () => { mounted = false; };
+  }, []);
 
   // Fetch related products
   useEffect(() => {
@@ -173,14 +189,12 @@ const ProductDetail: React.FC = () => {
           >
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-poppins font-medium capitalize">
-                  {product.category}
-                </span>
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-primary fill-current" />
-                  ))}
-                </div>
+                {product?.category_id && categoryMap[product.category_id] ? (
+                  <span className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-poppins font-medium capitalize">
+                    {categoryMap[product.category_id]}
+                  </span>
+                ) : null}
+                {/* Reviews removed */}
               </div>
               
               <h1 className="font-fredoka text-4xl md:text-5xl text-textPrimary mb-4">
@@ -191,8 +205,8 @@ const ProductDetail: React.FC = () => {
                 {product.description}
               </p>
               
-              <div className="text-4xl font-poppins font-bold text-primary mb-8">
-                ${product.price}
+              <div className="text-4xl font-poppins font-extrabold text-accent1 mb-8">
+                {formatINR(product.price)}
               </div>
             </div>
 
@@ -258,18 +272,7 @@ const ProductDetail: React.FC = () => {
                   onClick={handleAddToCart}
                   className="flex-1 bg-primary text-white py-4 rounded-full font-poppins font-semibold text-lg hover:bg-primary/90 transition-colors animate-bounce-gentle"
                 >
-                  Add to Cart - ${(product.price * quantity).toFixed(2)}
-                </motion.button>
-                
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsLiked(!isLiked)}
-                  className={`p-4 rounded-full transition-colors ${
-                    isLiked ? 'bg-accent2 text-white' : 'bg-white text-textBody hover:bg-accent2/10'
-                  }`}
-                >
-                  <Heart className={`w-6 h-6 ${isLiked ? 'fill-current' : ''}`} />
+                  Add to Cart - {formatINR(product.price * quantity)}
                 </motion.button>
               </div>
             </div>
@@ -307,16 +310,18 @@ const ProductDetail: React.FC = () => {
                   <Link to={`/product/${relatedProduct.id}`}>
                     <div className="relative overflow-hidden rounded-2xl mb-3">
                       <img
-                        src={relatedProduct.image}
+                        src={relatedProduct.full_image_url || relatedProduct.image_url}
                         alt={relatedProduct.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-32 object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     </div>
                     <h3 className="font-fredoka text-lg text-textPrimary mb-1">
                       {relatedProduct.name}
                     </h3>
-                    <div className="font-poppins font-bold text-primary">
-                      ${relatedProduct.price}
+                    <div className="font-poppins font-bold text-accent1">
+                      {formatINR(relatedProduct.price)}
                     </div>
                   </Link>
                 </motion.div>

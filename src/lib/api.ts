@@ -1,24 +1,145 @@
 import { supabase } from './supabaseClient';
 
-// Fetch products with images from Supabase view
-export async function fetchProducts() {
-  const { data, error } = await supabase
-    .from('products_with_images')
-    .select('*')
-    .order('display_order', { ascending: true });
-  if (error) throw error;
-  return data;
+// Types
+export interface Product {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  image_url?: string | null;
+  full_image_url?: string | null;
+  category_id?: string | null;
+  nutrition_calories?: number | null;
+  nutrition_sugar?: number | null;
+  nutrition_protein?: number | null;
+  display_order?: number | null;
 }
 
-// Fetch categories from Supabase
-export async function fetchCategories() {
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('is_active', true)
-    .order('display_order', { ascending: true });
-  if (error) throw error;
-  return data;
+export interface Category {
+  id: string;
+  name: string;
+  slug?: string | null;
+  emoji?: string | null;
+  display_order?: number | null;
+  is_active?: boolean | null;
+}
+
+// Simple in-memory + sessionStorage cache
+const memoryCache: Record<string, { ts: number; data: any }> = {};
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+async function withRetry<T>(runner: () => Promise<T>, retries = 2, baseDelayMs = 300): Promise<T> {
+  let lastErr: any;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await runner();
+    } catch (err: any) {
+      lastErr = err;
+      // Retry on transient/network errors
+      const msg = (err?.message || '').toLowerCase();
+      const isTransient = msg.includes('fetch') || msg.includes('timeout') || msg.includes('network') || msg.includes('connect');
+      if (attempt < retries && isTransient) {
+        const delay = baseDelayMs * Math.pow(2, attempt);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+
+      break;
+    }
+  }
+  throw lastErr;
+}
+
+function getCached(key: string) {
+  const now = Date.now();
+  // memory first
+  const mem = memoryCache[key];
+  if (mem && now - mem.ts < CACHE_TTL_MS) return mem.data;
+  // sessionStorage fallback
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (now - parsed.ts < CACHE_TTL_MS) {
+        memoryCache[key] = { ts: parsed.ts, data: parsed.data };
+        return parsed.data;
+      }
+    }
+  } catch {}
+  return null;
+}
+
+function setCached(key: string, data: any) {
+  const payload = { ts: Date.now(), data };
+  memoryCache[key] = payload;
+  try {
+    sessionStorage.setItem(key, JSON.stringify(payload));
+  } catch {}
+}
+
+// Categories fetch with lightweight cache (memory + sessionStorage)
+const CATEGORIES_CACHE_KEY = 'categories_list_v1';
+
+export async function fetchCategories(): Promise<Category[]> {
+  const cacheKey = CATEGORIES_CACHE_KEY;
+  const cached = getCached(cacheKey) as Category[] | null;
+  if (cached) return cached;
+
+  try {
+    // Background revalidation
+    withRetry(async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id,name,slug,emoji,display_order,is_active')
+        .order('display_order', { ascending: true });
+      if (error) throw error;
+      setCached(cacheKey, data);
+      return data as any;
+    });
+  } catch {
+    /* ignore background errors */
+  }
+
+  const data = await withRetry(async () => {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('id,name,slug,emoji,display_order,is_active')
+      .order('display_order', { ascending: true });
+    if (error) throw error;
+    return data as any;
+  });
+  setCached(cacheKey, data);
+  return data as Category[];
+}
+
+// Fetch products with images from Supabase view
+export async function fetchProducts(): Promise<Product[]> {
+  const cacheKey = 'products_list_v1';
+  const cached = getCached(cacheKey) as Product[] | null;
+  if (cached) {
+    // Revalidate in background
+    withRetry(async () => {
+      const { data, error } = await supabase
+        .from('products_with_images')
+        .select('id,name,price,image_url,full_image_url,display_order,category_id')
+        .order('display_order', { ascending: true });
+      if (error) throw error;
+      setCached(cacheKey, data);
+      return data as any;
+    }).catch(() => {});
+    return cached as Product[];
+  }
+
+  const data = await withRetry(async () => {
+    const { data, error } = await supabase
+      .from('products_with_images')
+      .select('id,name,price,image_url,full_image_url,display_order,category_id')
+      .order('display_order', { ascending: true });
+    if (error) throw error;
+    return data as any;
+  });
+  setCached(cacheKey, data);
+  return data as Product[];
 }
 
 // Submit order to Supabase

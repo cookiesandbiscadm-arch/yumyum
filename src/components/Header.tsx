@@ -1,12 +1,14 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Heart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { motion } from 'framer-motion';
 
 const Header: React.FC = () => {
   const { state } = useCart();
   const location = useLocation();
+
+  const itemCount = state.items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <motion.header 
@@ -46,10 +48,12 @@ const Header: React.FC = () => {
           </nav>
 
           <div className="flex items-center space-x-4">
-            <button className="p-2 text-textBody hover:text-magic-pink transition-colors">
-              <Heart size={24} />
-            </button>
-            <Link to="/cart" className="relative p-2 text-textBody hover:text-magic-pink transition-colors">
+            <Link
+              to="/cart"
+              className="relative p-2 text-textBody hover:text-magic-pink transition-colors"
+              aria-label={`Cart (${itemCount} items)`}
+              title={itemCount ? `${itemCount} item${itemCount>1?'s':''} in cart` : 'Cart'}
+            >
               <ShoppingCart size={24} />
               {state.items.length > 0 && (
                 <motion.span
@@ -57,7 +61,7 @@ const Header: React.FC = () => {
                   animate={{ scale: 1 }}
                   className="absolute -top-1 -right-1 bg-magic-pink text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
                 >
-                  {state.items.reduce((sum, item) => sum + item.quantity, 0)}
+                  {itemCount}
                 </motion.span>
               )}
             </Link>
