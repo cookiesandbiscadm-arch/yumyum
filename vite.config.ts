@@ -11,15 +11,20 @@ export default defineConfig({
     historyApiFallback: true
   },
   build: {
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
           gsap: ['gsap'],
           lucide: ['lucide-react'],
-          motion: ['framer-motion']
+          motion: ['framer-motion'],
+          supabase: ['@supabase/supabase-js']
         }
       }
+    },
+    esbuild: {
+      drop: ['console', 'debugger'],
     }
   }
 });

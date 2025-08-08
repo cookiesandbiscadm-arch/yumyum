@@ -49,15 +49,17 @@ p, span, div, button, input, textarea, label {
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
+    left: 0;
     width: 100%;
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.4), transparent);
-    transition: left 0.5s;
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+    will-change: transform;
   }
   
   .magic-button:hover::before {
-    left: 100%;
+    transform: translateX(100%);
   }
 }
 

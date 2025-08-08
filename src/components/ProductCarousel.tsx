@@ -94,14 +94,19 @@ const ProductCarousel: React.FC = () => {
     event.stopPropagation();
     addItem(product);
     
-    // Bounce animation
+    // Bounce animation (composited)
     const { gsap } = await import('gsap');
-    gsap.to(event.currentTarget, {
+    const target = event.currentTarget as HTMLElement;
+    target.style.willChange = 'transform';
+    gsap.to(target, {
       scale: 1.05,
       duration: 0.2,
       ease: "power2.inOut",
       yoyo: true,
-      repeat: 1
+      repeat: 1,
+      onComplete: () => {
+        target.style.willChange = 'auto';
+      }
     });
   };
 
@@ -170,7 +175,10 @@ const ProductCarousel: React.FC = () => {
                   alt={product.name}
                   loading="lazy"
                   decoding="async"
-                  className="w-full h-48 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-500"
+                  width="300"
+                  height="192"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="w-full h-48 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-500 will-change-transform"
                 />
                 
                 {/* Floating emoji */}

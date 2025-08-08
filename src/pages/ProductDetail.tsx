@@ -149,6 +149,10 @@ const ProductDetail: React.FC = () => {
               <img
                 src={product.full_image_url || product.image_url}
                 alt={product.name}
+                fetchPriority="high"
+                width="600"
+                height="384"
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="w-full h-96 object-cover rounded-2xl"
               />
               
@@ -314,7 +318,10 @@ const ProductDetail: React.FC = () => {
                         alt={relatedProduct.name}
                         loading="lazy"
                         decoding="async"
-                        className="w-full h-32 object-cover group-hover:scale-110 transition-transform duration-500"
+                        width="200"
+                        height="128"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        className="w-full h-32 object-cover group-hover:scale-110 transition-transform duration-500 will-change-transform"
                       />
                     </div>
                     <h3 className="font-fredoka text-lg text-textPrimary mb-1">

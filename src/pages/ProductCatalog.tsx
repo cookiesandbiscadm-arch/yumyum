@@ -103,7 +103,12 @@ const ProductCatalog: React.FC = () => {
                   <img
                     src={product.full_image_url || product.image_url}
                     alt={product.name}
-                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                    loading="lazy"
+                    decoding="async"
+                    width="300"
+                    height="192"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500 will-change-transform"
                   />
                 </Link>
                 {/* Reviews removed */}
