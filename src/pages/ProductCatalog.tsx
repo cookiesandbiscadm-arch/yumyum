@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus } from 'lucide-react';
 import { fetchProducts, fetchCategories } from '../lib/api';
-import { formatINR } from '../lib/format';
-import { useCart } from '../context/CartContext';
+import ProductCard from '../components/ProductCard';
 
 const ProductCatalog: React.FC = () => {
   const [categories, setCategories] = useState<any[]>([]);
@@ -12,7 +9,6 @@ const ProductCatalog: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { addItem } = useCart();
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -85,7 +81,7 @@ const ProductCatalog: React.FC = () => {
         </motion.div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {error ? (
             <div className="col-span-full text-center text-red-500 py-12">{error}</div>
           ) : loading ? null : filteredProducts.length === 0 ? null : filteredProducts.map((product, index) => (
@@ -95,92 +91,15 @@ const ProductCatalog: React.FC = () => {
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: index * 0.1 }}
-              whileHover={{ y: -10 }}
-              className="group bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300"
             >
-              <div className="relative overflow-hidden rounded-2xl mb-4">
-                <Link to={`/product/${product.id}`}>
-                  <img
-                    src={product.full_image_url || product.image_url}
-                    alt={product.name}
-                    loading="lazy"
-                    decoding="async"
-                    width="300"
-                    height="192"
-                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500 will-change-transform"
-                  />
-                </Link>
-                {/* Reviews removed */}
-
-              {/* Category badge (resolved via category_id) */}
-              {product.category_id && categoryMap[product.category_id] ? (
-                <div className="mt-2">
-                  <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-poppins font-medium capitalize">
-                    {categoryMap[product.category_id]}
-                  </span>
-                </div>
-              ) : null}
-                
-                {/* Sparkles on hover */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  {[...Array(3)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute text-primary text-xs"
-                      style={{
-                        left: `${20 + i * 30}%`,
-                        top: `${20 + i * 20}%`,
-                      }}
-                      animate={{
-                        scale: [0, 1.2, 0],
-                        rotate: [0, 180, 360],
-                      }}
-                      transition={{
-                        duration: 1,
-                        repeat: Infinity,
-                        delay: i * 0.2,
-                      }}
-                    >
-                      ✨
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-              
-              <Link to={`/product/${product.id}`}>
-                <h3 className="font-fredoka text-xl text-textPrimary mb-2 hover:text-primary transition-colors">
-                  {product.name}
-                </h3>
-              </Link>
-              
-              <p className="font-poppins text-textBody mb-4 text-sm line-clamp-2">
-                {product.description}
-              </p>
-              
-              <div className="flex items-center justify-between">
-                <span className="font-poppins font-extrabold text-2xl text-accent1">
-                  {formatINR(product.price)}
-                </span>
-                
-                <div className="flex gap-2">
-                  <Link
-                    to={`/product/${product.id}`}
-                    className="bg-accent1 text-white px-4 py-2 rounded-full font-poppins font-medium hover:bg-accent1/90 transition-colors text-sm"
-                  >
-                    View
-                  </Link>
-                  
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => addItem(product)}
-                    className="bg-primary text-white p-2 rounded-full hover:bg-primary/90 transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </motion.button>
-                </div>
-              </div>
+              <ProductCard 
+                product={{
+                  ...product,
+                  weight: '200',
+                  unit: 'g'
+                }}
+                linkToProduct={true}
+              />
             </motion.div>
           ))}
         </div>

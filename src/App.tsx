@@ -9,6 +9,7 @@ import ProductCatalog from './pages/ProductCatalog';
 import ProductDetail from './pages/ProductDetail';
 import CartPage from './pages/CartPage';
 import ThankYouPage from './pages/ThankYouPage';
+import ProductCardDemo from './pages/ProductCardDemo';
 
 function App() {
   useSmoothScrolling();
@@ -25,6 +26,7 @@ function App() {
               <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/thank-you" element={<ThankYouPage />} />
+              <Route path="/product-card-demo" element={<ProductCardDemo />} />
             </Routes>
           </div>
         </Router>
