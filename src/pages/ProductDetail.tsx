@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Plus, Minus } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { gsap } from 'gsap';
+import { ArrowLeft, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useCart } from '../context/CartContext';
 import { fetchCategories } from '../lib/api';
@@ -19,6 +20,11 @@ const ProductDetail: React.FC = () => {
   const [relatedLoading, setRelatedLoading] = useState(true);
   const [relatedError, setRelatedError] = useState<string | null>(null);
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
+  
+  // Refs for animations
+  const imageRef = useRef<HTMLDivElement>(null);
+  const detailsRef = useRef<HTMLDivElement>(null);
+  const relatedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -91,13 +97,60 @@ const ProductDetail: React.FC = () => {
       });
   }, [product]);
 
+  // Animation effects
+  useEffect(() => {
+    if (!loading && product) {
+      // Animate main content
+      gsap.fromTo(
+        [imageRef.current, detailsRef.current],
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          stagger: 0.2,
+          ease: 'power3.out',
+        }
+      );
+
+      // Animate related products when they load
+      if (!relatedLoading && relatedRef.current) {
+        gsap.fromTo(
+          relatedRef.current.querySelectorAll('.related-item'),
+          { y: 30, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: 'power3.out',
+            delay: 0.3,
+          }
+        );
+      }
+    }
+  }, [loading, relatedLoading, product]);
+
   if (loading) {
-    return <div className="pt-20 min-h-screen flex items-center justify-center">Loading product...</div>;
+    return (
+      <div className="pt-20 min-h-screen flex items-center justify-center">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="w-64 h-64 bg-gray-200 rounded-full mb-6"></div>
+          <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+          <div className="h-12 bg-primary/20 rounded-lg w-48"></div>
+        </div>
+      </div>
+    );
   }
   if (error || !product) {
     return (
       <div className="pt-20 min-h-screen bg-secondary flex items-center justify-center">
-        <div className="text-center">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center"
+        >
           <div className="text-6xl mb-4">🍪</div>
           <h2 className="font-fredoka text-2xl text-textPrimary mb-4">
             Oops! Treat not found
@@ -120,30 +173,35 @@ const ProductDetail: React.FC = () => {
   };
 
   return (
-    <div className="pt-20 min-h-screen bg-secondary">
-      <div className="container mx-auto px-4 py-8">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="pt-20 min-h-screen bg-secondary"
+    >
+      <div className="container mx-auto px-4 py-12">
         {/* Back Button */}
         <motion.div
-          initial={{ x: -50, opacity: 0 }}
+          initial={{ x: -20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
           className="mb-8"
         >
           <Link
             to="/catalog"
-            className="inline-flex items-center gap-2 text-textBody hover:text-primary transition-colors font-poppins"
+            className="inline-flex items-center text-textBody hover:text-primary transition-colors duration-300"
           >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Treats
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Back to Catalog
           </Link>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           {/* Product Image */}
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="relative"
+          <motion.div 
+            ref={imageRef}
+            className="bg-white rounded-2xl p-6 shadow-lg overflow-hidden"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: 'spring', stiffness: 300 }}
           >
             <div className="relative overflow-hidden rounded-3xl bg-white p-8 shadow-xl">
               <img
@@ -250,45 +308,57 @@ const ProductDetail: React.FC = () => {
                 <span className="font-poppins font-medium text-textPrimary">
                   Quantity:
                 </span>
-                <div className="flex items-center bg-white rounded-full shadow-lg">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-3 hover:bg-primary/10 rounded-full transition-colors"
-                  >
-                    <Minus className="w-4 h-4 text-textPrimary" />
-                  </button>
-                  <span className="px-4 font-poppins font-bold text-textPrimary">
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="p-3 hover:bg-primary/10 rounded-full transition-colors"
-                  >
-                    <Plus className="w-4 h-4 text-textPrimary" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleAddToCart}
-                  className="flex-1 bg-primary text-white py-4 rounded-full font-poppins font-semibold text-lg hover:bg-primary/90 transition-colors animate-bounce-gentle"
+                <motion.div 
+                  className="flex items-center gap-4 mb-6"
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.4 }}
                 >
-                  Add to Cart - {formatINR(product.price * quantity)}
-                </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-all"
+                  >
+                    <Minus className="w-5 h-5" />
+                  </motion.button>
+                  <motion.span 
+                    className="text-2xl font-bold w-12 text-center"
+                    key={quantity}
+                    initial={{ scale: 1.2 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 500 }}
+                  >
+                    {quantity}
+                  </motion.span>
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-all"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleAddToCart}
+                    className="flex-1 h-12 bg-primary text-white rounded-full font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
+                  >
+                    <ShoppingBag className="w-5 h-5" />
+                    Add to Cart - {formatINR((product.price * quantity) / 100)}
+                  </motion.button>
+                </motion.div>
               </div>
             </div>
           </motion.div>
         </div>
 
         {/* Related Products */}
-        <motion.div
-          initial={{ y: 50, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          className="mt-20"
+        <motion.div 
+          ref={relatedRef}
+          className="md:col-span-2 mt-16"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
         >
           <h2 className="font-fredoka text-3xl text-textPrimary mb-8 text-center">
             You Might Also Love
@@ -335,7 +405,7 @@ const ProductDetail: React.FC = () => {
               ))}
           </div>
         </motion.div>
-      </div>
+      </motion.div>
     </div>
   );
 };

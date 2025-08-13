@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
+import { gsap } from 'gsap';
+import { ArrowLeft, Plus, Minus, Trash2, ShoppingBag, Loader2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { formatINR } from '../lib/format';
 import { submitOrder } from '../lib/api';
@@ -10,10 +11,30 @@ const CartPage: React.FC = () => {
   const { state, updateQuantity, removeItem, clearCart } = useCart();
   const navigate = useNavigate();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [isRemoving, setIsRemoving] = useState<string | null>(null);
+  const cartItemsRef = useRef<HTMLDivElement>(null);
 
+  // Animation effects
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    
+    // Animate cart items on mount and when items change
+    if (cartItemsRef.current) {
+      const items = cartItemsRef.current.querySelectorAll('.cart-item');
+      
+      gsap.fromTo(
+        items,
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: 'power3.out',
+        }
+      );
+    }
+  }, [state.items]);
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     phone: '',
@@ -48,31 +69,70 @@ const handleCheckout = async (e: React.FormEvent) => {
       <div className="pt-20 min-h-screen bg-secondary flex items-center justify-center">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
+          animate={{ 
+            scale: [0.8, 1.05, 1],
+            opacity: 1,
+            transition: { duration: 0.6, ease: 'backOut' }
+          }}
           className="text-center"
         >
-          <div className="text-8xl mb-6">🍪</div>
+          <motion.div 
+            className="text-8xl mb-6"
+            animate={{ 
+              rotate: [0, 10, -10, 0],
+              transition: { 
+                repeat: Infinity, 
+                repeatType: 'reverse',
+                duration: 2
+              }
+            }}
+          >
+            🍪
+          </motion.div>
           <h2 className="font-fredoka text-3xl text-textPrimary mb-4">
             Your cart is empty
           </h2>
           <p className="font-poppins text-textBody mb-8">
             Time to fill it with some delicious treats!
           </p>
-          <Link
-            to="/catalog"
-            aria-label="Start Shopping"
-            className="bg-accent1 text-white px-10 py-4 rounded-full font-poppins font-extrabold text-2xl shadow-lg hover:bg-accent1/90 transition-all duration-300 transform hover:scale-105 inline-flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-accent1/70"
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <ShoppingBag className="w-5 h-5" />
-            Start Shopping
-          </Link>
+            <Link
+              to="/catalog"
+              aria-label="Start Shopping"
+              className="bg-accent1 text-white px-10 py-4 rounded-full font-poppins font-extrabold text-2xl shadow-lg hover:bg-accent1/90 transition-all duration-300 inline-flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-accent1/70"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              Start Shopping
+            </Link>
+          </motion.div>
         </motion.div>
       </div>
     );
   }
 
+  const handleRemoveItem = async (id: string) => {
+    setIsRemoving(id);
+    // Add a small delay for the animation
+    await new Promise(resolve => setTimeout(resolve, 500));
+    removeItem(id);
+    setIsRemoving(null);
+  };
+
+  const handleUpdateQuantity = (id: string, newQuantity: number) => {
+    if (newQuantity < 1) return;
+    updateQuantity(id, newQuantity);
+  };
+
   return (
-    <div className="pt-20 min-h-screen bg-secondary">
+    <motion.div 
+      className="pt-20 min-h-screen bg-secondary"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
       {/* Floating background elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         {[...Array(8)].map((_, i) => (
@@ -98,85 +158,139 @@ const handleCheckout = async (e: React.FormEvent) => {
         ))}
       </div>
 
-      <div className="container mx-auto px-4 py-8 relative z-10">
+      <div className="container mx-auto px-4 py-12 relative z-10">
         {/* Header */}
-        <motion.div
-          initial={{ y: -50, opacity: 0 }}
+        <motion.div 
+          className="flex items-center mb-8"
+          initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="flex items-center gap-4 mb-8"
+          transition={{ delay: 0.2 }}
         >
-          <Link
-            to="/catalog"
-            className="p-2 hover:bg-white/50 rounded-full transition-colors"
+          <motion.div whileHover={{ x: -5 }} whileTap={{ scale: 0.95 }}>
+            <Link
+              to="/catalog"
+              className="flex items-center text-textBody hover:text-primary transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Continue Shopping
+            </Link>
+          </motion.div>
+          <motion.h1 
+            className="font-fredoka text-3xl md:text-4xl text-textPrimary ml-8"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.3 }}
           >
-            <ArrowLeft className="w-6 h-6 text-textBody" />
-          </Link>
-          <h1 className="font-fredoka text-3xl md:text-4xl text-textPrimary">
-            Your Magical Cart
-          </h1>
+            Your Cart
+          </motion.h1>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2" ref={cartItemsRef}>
             <AnimatePresence>
               {state.items.map((item) => (
                 <motion.div
                   key={item.id}
+                  className="cart-item bg-white rounded-2xl p-6 shadow-md mb-6 overflow-hidden"
                   layout
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8, x: -100 }}
-                  className="bg-white rounded-3xl p-6 mb-4 shadow-lg hover:shadow-xl transition-all duration-300"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ 
+                    opacity: isRemoving === item.id ? 0 : 1, 
+                    x: isRemoving === item.id ? 100 : 0,
+                    height: isRemoving === item.id ? 0 : 'auto',
+                    marginBottom: isRemoving === item.id ? 0 : 24,
+                    transition: { duration: 0.3 }
+                  }}
+                  exit={{ opacity: 0, x: 100, height: 0, marginBottom: 0 }}
+                  transition={{ 
+                    type: 'spring', 
+                    damping: 25, 
+                    stiffness: 300,
+                    opacity: { duration: 0.2 }
+                  }}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="relative">
-                      <img
-                        src={item.full_image_url}
-                        alt={item.name}
-                        className="w-20 h-20 object-cover rounded-2xl"
-                      />
-                      <div className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
-                        {item.quantity}
-                      </div>
-                    </div>
-                    
-                    <div className="flex-1">
-                      <h3 className="font-fredoka text-xl text-textPrimary mb-1">
-                        {item.name}
-                      </h3>
-                      <p className="text-textBody text-sm mb-2">
-                        {formatINR(item.price)} each
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}
-                          className="p-1 hover:bg-primary/10 rounded-full transition-colors"
+                  <div className="flex flex-col sm:flex-row items-center">
+                    <motion.div 
+                      className="w-32 h-32 bg-gray-100 rounded-xl overflow-hidden mb-4 sm:mb-0 sm:mr-6 flex-shrink-0"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      {item.full_image_url && (
+                        <img
+                          src={item.full_image_url}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </motion.div>
+                    <div className="flex-1 w-full">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-fredoka text-xl text-textPrimary">
+                            {item.name}
+                          </h3>
+                          <p className="text-textBody font-poppins">
+                            {formatINR(item.price / 100)} each
+                          </p>
+                        </div>
+                        <motion.button
+                          onClick={() => handleRemoveItem(item.id)}
+                          className="text-red-400 hover:text-red-600 transition-colors p-2 -mt-2 -mr-2"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          disabled={isRemoving === item.id}
+                          aria-label="Remove item"
                         >
-                          <Minus className="w-4 h-4 text-textPrimary" />
-                        </button>
-                        <span className="px-3 py-1 bg-secondary rounded-full font-poppins font-medium">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="p-1 hover:bg-primary/10 rounded-full transition-colors"
+                          {isRemoving === item.id ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-5 h-5" />
+                          )}
+                        </motion.button>
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between">
+                        <motion.div 
+                          className="flex items-center bg-gray-50 rounded-full px-3 py-1"
+                          whileHover={{ scale: 1.02 }}
                         >
-                          <Plus className="w-4 h-4 text-textPrimary" />
-                        </button>
+                          <motion.button
+                            onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                            className="text-textBody hover:text-primary transition-colors p-1"
+                            whileTap={{ scale: 0.8 }}
+                            disabled={item.quantity <= 1}
+                            aria-label="Decrease quantity"
+                          >
+                            <Minus className={`w-4 h-4 ${item.quantity <= 1 ? 'opacity-30' : ''}`} />
+                          </motion.button>
+                          <motion.span 
+                            className="mx-4 font-medium w-6 text-center"
+                            key={`quantity-${item.quantity}`}
+                            initial={{ scale: 1.2 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: 'spring', stiffness: 500 }}
+                          >
+                            {item.quantity}
+                          </motion.span>
+                          <motion.button
+                            onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                            className="text-textBody hover:text-primary transition-colors p-1"
+                            whileTap={{ scale: 0.8 }}
+                            aria-label="Increase quantity"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </motion.button>
+                        </motion.div>
+                        <motion.span 
+                          className="font-fredoka text-lg text-textPrimary"
+                          key={`price-${item.quantity}`}
+                          initial={{ scale: 1.1 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: 'spring', stiffness: 500 }}
+                        >
+                          {formatINR((item.price * item.quantity) / 100)}
+                        </motion.span>
                       </div>
-                    </div>
-                    
-                    <div className="text-right">
-                      <div className="font-poppins font-extrabold text-xl text-accent1 mb-2">
-                        {formatINR(item.price * item.quantity)}
-                      </div>
-                      <button
-                        onClick={() => removeItem(item.id)}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
                     </div>
                   </div>
                 </motion.div>
@@ -185,41 +299,78 @@ const handleCheckout = async (e: React.FormEvent) => {
           </div>
 
           {/* Checkout Form */}
-          <motion.div
-            initial={{ x: 50, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
+          <motion.div 
+            className="bg-white rounded-2xl p-6 shadow-md h-fit"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white rounded-3xl p-6 shadow-xl h-fit"
           >
             <h2 className="font-fredoka text-2xl text-textPrimary mb-6">
               Order Summary
             </h2>
-            
-            <div className="space-y-3 mb-6">
+
+            <div className="space-y-4 mb-6">
               <div className="flex justify-between">
-                <span className="font-poppins text-textBody">
-                  Items ({state.items.reduce((sum, item) => sum + item.quantity, 0)})
-                </span>
-                <span className="font-poppins font-medium">
-                  {formatINR(state.total)}
-                </span>
+                <span className="text-textBody">Subtotal</span>
+                <motion.span 
+                  className="font-medium"
+                  key={`subtotal-${state.items.reduce((sum, item) => sum + item.quantity, 0)}`}
+                  initial={{ scale: 1.1 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 500 }}
+                >
+                  {formatINR(
+                    state.items.reduce(
+                      (sum, item) => sum + item.price * item.quantity,
+                      0
+                    ) / 100
+                  )}
+                </motion.span>
               </div>
               <div className="flex justify-between">
-                <span className="font-poppins text-textBody">Delivery</span>
-                <span className="font-poppins font-medium text-accent1">Free!</span>
+                <span className="text-textBody">Shipping</span>
+                <span className="font-medium">Free</span>
               </div>
-              <hr className="border-secondary" />
-              <div className="flex justify-between">
-                <span className="font-poppins font-bold text-textPrimary text-lg">
-                  Total
-                </span>
-                <span className="font-poppins font-extrabold text-accent1 text-2xl">
-                  {formatINR(state.total)}
-                </span>
+              <div className="border-t border-gray-200 my-2"></div>
+              <div className="flex justify-between text-lg font-bold">
+                <span>Total</span>
+                <motion.span
+                  key={`total-${state.items.reduce((sum, item) => sum + item.quantity, 0)}`}
+                  initial={{ scale: 1.1 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 500 }}
+                >
+                  {formatINR(
+                    state.items.reduce(
+                      (sum, item) => sum + item.price * item.quantity,
+                      0
+                    ) / 100
+                  )}
+                </motion.span>
               </div>
             </div>
 
-            <form onSubmit={handleCheckout} className="space-y-4">
+            <motion.button
+              onClick={handleCheckout}
+              disabled={isCheckingOut}
+              className="w-full bg-primary text-white py-4 rounded-full font-poppins font-semibold text-lg hover:bg-primary/90 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              whileHover={!isCheckingOut ? { scale: 1.02 } : {}}
+              whileTap={!isCheckingOut ? { scale: 0.98 } : {}}
+            >
+              {isCheckingOut ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-5 h-5" />
+                  Proceed to Checkout
+                </>
+              )}
+            </motion.button>
+            
+            <form onSubmit={handleCheckout} className="mt-6 space-y-4">
               <div>
                 <label className="block font-poppins font-medium text-textPrimary mb-2">
                   Name
@@ -279,14 +430,14 @@ const handleCheckout = async (e: React.FormEvent) => {
                     Processing Magic...
                   </div>
                 ) : (
-                  '✨ Complete Order ✨'
+                  <div>✨ Complete Order ✨</div>
                 )}
               </motion.button>
             </form>
           </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { gsap } from 'gsap';
 import { fetchProducts, fetchCategories } from '../lib/api';
 import ProductCard from '../components/ProductCard';
 
@@ -9,7 +10,6 @@ const ProductCatalog: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -22,9 +22,6 @@ const ProductCatalog: React.FC = () => {
           fetchProducts()
         ]);
         setCategories([{ id: 'all', name: 'All Treats', emoji: '🍪' }, ...cats]);
-        const map: Record<string, string> = {};
-        for (const c of cats) if (c && c.id) map[c.id] = c.name;
-        setCategoryMap(map);
         setProducts(prods);
       } catch (err: any) {
         setError(err.message || 'Failed to load data.');
@@ -39,6 +36,44 @@ const ProductCatalog: React.FC = () => {
     ? products
     : products.filter(product => product.category_id === activeCategory);
 
+  // Animation for category change
+  const [isAnimating, setIsAnimating] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    
+    const items = containerRef.current.querySelectorAll('.product-item');
+    if (items.length === 0) return;
+    
+    const tl = gsap.timeline({
+      defaults: { duration: 0.6, ease: 'power3.out' },
+      onStart: () => setIsAnimating(true),
+      onComplete: () => setIsAnimating(false)
+    });
+
+    tl.fromTo(
+      items,
+      { y: 30, opacity: 0 },
+      { 
+        y: 0, 
+        opacity: 1, 
+        stagger: 0.1,
+        duration: 0.6,
+        ease: 'power3.out'
+      }
+    );
+
+    return () => {
+      tl.kill();
+    };
+  }, [filteredProducts, activeCategory]);
+
+  const handleCategoryChange = (categoryId: string) => {
+    if (!isAnimating) {
+      setActiveCategory(categoryId);
+    }
+  };
 
   return (
     <div className="pt-20 min-h-screen bg-secondary">
@@ -65,9 +100,11 @@ const ProductCatalog: React.FC = () => {
           className="flex flex-wrap justify-center gap-4 mb-12"
         >
           {categories.map((category) => (
-            <button
+            <motion.button
               key={category.id}
-              onClick={() => setActiveCategory(category.id)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleCategoryChange(category.id)}
               className={`px-6 py-3 rounded-full font-poppins font-medium transition-all duration-300 flex items-center gap-2 ${
                 activeCategory === category.id
                   ? 'bg-primary text-white shadow-lg scale-105'
@@ -76,50 +113,55 @@ const ProductCatalog: React.FC = () => {
             >
               <span className="text-xl">{category.emoji}</span>
               {category.name}
-            </button>
+            </motion.button>
           ))}
         </motion.div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div ref={containerRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {error ? (
             <div className="col-span-full text-center text-red-500 py-12">{error}</div>
-          ) : loading ? null : filteredProducts.length === 0 ? null : filteredProducts.map((product, index) => (
-            <motion.div
-              key={product.id}
-              layout
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <ProductCard 
-                product={{
-                  ...product,
-                  weight: '200',
-                  unit: 'g'
-                }}
-                linkToProduct={true}
-              />
-            </motion.div>
-          ))}
+          ) : loading ? (
+            // Loading skeleton
+            Array.from({ length: 8 }).map((_, index) => (
+              <div key={index} className="product-item bg-white rounded-2xl p-4 h-full">
+                <div className="animate-pulse">
+                  <div className="bg-gray-200 h-48 rounded-lg mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                  <div className="h-10 bg-primary/20 rounded-lg"></div>
+                </div>
+              </div>
+            ))
+          ) : filteredProducts.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-textBody">No products found in this category.</p>
+            </div>
+          ) : (
+            <AnimatePresence>
+              {filteredProducts.map((product) => (
+                <motion.div
+                  key={product.id}
+                  className="product-item"
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                >
+                  <ProductCard 
+                    product={{
+                      ...product,
+                      weight: '200',
+                      unit: 'g'
+                    }}
+                    linkToProduct={true}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          )}
         </div>
-
-        {/* Empty State */}
-        {filteredProducts.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-16"
-          >
-            <div className="text-6xl mb-4">🍪</div>
-            <h3 className="font-fredoka text-2xl text-textPrimary mb-2">
-              No treats found
-            </h3>
-            <p className="font-poppins text-textBody">
-              Try selecting a different category
-            </p>
-          </motion.div>
-        )}
       </div>
     </div>
   );
