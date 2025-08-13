@@ -146,7 +146,7 @@ const ProductDetail: React.FC = () => {
   if (error || !product) {
     return (
       <div className="pt-20 min-h-screen bg-secondary flex items-center justify-center">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-center"
@@ -161,7 +161,7 @@ const ProductDetail: React.FC = () => {
           >
             Back to Catalog
           </Link>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -173,11 +173,7 @@ const ProductDetail: React.FC = () => {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="pt-20 min-h-screen bg-secondary"
-    >
+    <div className="pt-20 min-h-screen bg-secondary">
       <div className="container mx-auto px-4 py-12">
         {/* Back Button */}
         <motion.div
@@ -405,7 +401,7 @@ const ProductDetail: React.FC = () => {
               ))}
           </div>
         </motion.div>
-      </motion.div>
+      </div>
     </div>
   );
 };
