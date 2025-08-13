@@ -4,7 +4,6 @@ import { ShoppingCart } from 'lucide-react';
 import { formatINR } from '../lib/format';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
-import OptimizedImage from './OptimizedImage';
 
 interface Product {
   id: string;
@@ -78,13 +77,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-pink-500/10 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
         
         {/* Product Image */}
-        <OptimizedImage
+        <img
           src={product.full_image_url || product.image_url || '/api/placeholder/400/300'}
           alt={product.name}
-          width={400}
-          height={300}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 will-change-transform"
-          sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 30vw"
         />
         
         {/* Floating Magic Sparkle */}
