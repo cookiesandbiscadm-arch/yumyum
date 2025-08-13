@@ -113,6 +113,26 @@ export async function fetchCategories(): Promise<Category[]> {
 }
 
 // Fetch products with images from Supabase view
+// Fetch a single product by ID
+export async function fetchProductById(id: string): Promise<Product> {
+  const cacheKey = `product_${id}`;
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
+
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('products_with_images')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    const product = data as Product;
+    setCached(cacheKey, product);
+    return product;
+  });
+}
+
 export async function fetchProducts(): Promise<Product[]> {
   const cacheKey = 'products_list_v1';
   const cached = getCached(cacheKey) as Product[] | null;
