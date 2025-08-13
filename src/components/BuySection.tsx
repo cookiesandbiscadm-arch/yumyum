@@ -34,16 +34,15 @@ const BuySection: React.FC = () => {
             const container = q('.buy-container');
             if (container.length) {
               gsap.fromTo(container,
-                { y: 100, opacity: 0, scale: 0.9 },
+                { y: 50, opacity: 0 },
                 {
                   y: 0,
                   opacity: 1,
-                  scale: 1,
-                  duration: 1,
+                  duration: 0.8,
                   ease: 'power3.out',
                   scrollTrigger: {
                     trigger: container[0],
-                    start: 'top 80%',
+                    start: 'top 85%',
                     toggleActions: 'play none none reverse'
                   }
                 }
@@ -55,16 +54,16 @@ const BuySection: React.FC = () => {
             const featuresGrid = q('.features-grid')[0];
             if (features.length && featuresGrid) {
               gsap.fromTo(features,
-                { y: 50, opacity: 0 },
+                { y: 30, opacity: 0 },
                 {
                   y: 0,
                   opacity: 1,
-                  duration: 0.8,
-                  stagger: 0.2,
-                  ease: 'bounce.out',
+                  duration: 0.6,
+                  stagger: 0.15,
+                  ease: 'power3.out',
                   scrollTrigger: {
                     trigger: featuresGrid,
-                    start: 'top 80%',
+                    start: 'top 85%',
                     toggleActions: 'play none none reverse'
                   }
                 }

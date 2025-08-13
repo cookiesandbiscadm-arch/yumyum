@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
 import { useSmoothScrolling } from './hooks/useSmoothScrolling';
+import { useMediaQuery } from './hooks/useMediaQuery';
 
 import Header from './components/Header';
 import HomePage from './pages/HomePage';
@@ -13,8 +14,8 @@ import ThankYouPage from './pages/ThankYouPage';
 import ProductCardDemo from './pages/ProductCardDemo';
 
 function App() {
-  useSmoothScrolling();
-
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+  useSmoothScrolling({ enabled: isDesktop });
 
   return (
     <ToastProvider>

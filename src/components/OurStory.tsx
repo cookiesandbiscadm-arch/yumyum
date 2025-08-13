@@ -84,20 +84,18 @@ const OurStory: React.FC = () => {
             }
 
             // Animate story steps
-            storySteps.forEach((step, index) => {
-              const direction = step.side === 'left' ? -100 : 100;
+            storySteps.forEach((_, index) => {
               const stepEls = q(`.story-step-${index}`);
               const iconEls = q(`.story-icon-${index}`);
 
               if (stepEls.length) {
                 gsap.fromTo(stepEls,
-                  { x: direction, opacity: 0, scale: 0.8 },
+                  { y: 30, opacity: 0 },
                   {
-                    x: 0,
+                    y: 0,
                     opacity: 1,
-                    scale: 1,
-                    duration: 0.8,
-                    ease: 'back.out(1.7)',
+                    duration: 0.6,
+                    ease: 'power3.out',
                     scrollTrigger: {
                       trigger: stepEls[0],
                       start: 'top 85%',
@@ -109,15 +107,13 @@ const OurStory: React.FC = () => {
 
               if (stepEls.length && iconEls.length) {
                 gsap.fromTo(iconEls,
-                  { scale: 0, rotation: -180, y: 20, opacity: 0 },
+                  { y: 20, opacity: 0 },
                   {
-                    scale: 1,
-                    rotation: 0,
                     y: 0,
                     opacity: 1,
                     duration: 0.6,
-                    ease: 'bounce.out',
-                    delay: 0.3,
+                    ease: 'power3.out',
+                    delay: 0.2,
                     scrollTrigger: {
                       trigger: stepEls[0],
                       start: 'top 85%',

@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchCategories, fetchProducts } from '../lib/api';
+import { fetchProducts } from '../lib/api';
 import { ProductCardSkeleton } from './LoadingSkeleton';
 import ProductCard from './ProductCard';
 
@@ -53,15 +53,13 @@ const ProductCarousel: React.FC = () => {
             const grid = q('.product-grid')[0];
             if (cards.length && grid) {
               gsap.fromTo(cards,
-                { y: 100, opacity: 0, scale: 0.8, rotation: -5 },
+                { y: 30, opacity: 0 },
                 {
                   y: 0,
                   opacity: 1,
-                  scale: 1,
-                  rotation: 0,
-                  duration: 0.8,
-                  ease: 'bounce.out',
-                  stagger: 0.2,
+                  duration: 0.6,
+                  ease: 'power3.out',
+                  stagger: 0.15,
                   scrollTrigger: {
                     trigger: grid,
                     start: 'top 80%',
@@ -110,19 +108,7 @@ const ProductCarousel: React.FC = () => {
     };
   }, []);
 
-  // Fetch categories to resolve category_id -> name without altering DB/view
-  useEffect(() => {
-    let mounted = true;
-    fetchCategories()
-      .then((cats) => {
-        if (!mounted || !cats) return;
-        const map: Record<string, string> = {};
-        for (const c of cats) if (c && c.id) map[c.id] = c.name;
-        setCategoryMap(map);
-      })
-      .catch(() => {/* ignore */});
-    return () => { mounted = false; };
-  }, []);
+  // Category mapping removed as it's not being used in the component
 
   return (
     <section
