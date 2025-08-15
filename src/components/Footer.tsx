@@ -20,7 +20,7 @@ const Footer: React.FC = () => {
           gsap.registerPlugin(ScrollTrigger);
 
           ctx = gsap.context(() => {
-            const q = gsap.utils.selector(footerRef);
+            const q = gsap.utils.selector(el);
 
             // Animate floating particles (scoped)
             const particles = q('.floating-particle');
@@ -57,7 +57,7 @@ const Footer: React.FC = () => {
                 }
               );
             }
-          }, footerRef);
+          }, el);
 
           // Avoid ScrollTrigger.refresh() while hidden by content-visibility
         })();
@@ -77,7 +77,7 @@ const Footer: React.FC = () => {
   return (
     <footer
       ref={footerRef}
-      className="relative bg-gradient-to-br from-pink-400 via-purple-500 to-orange-400 text-white overflow-hidden"
+      className="relative bg-gradient-to-br from-[#A6651C] via-[#E08A2E] to-[#F4A73C] text-white overflow-hidden"
       style={{ contentVisibility: 'auto', containIntrinsicSize: '900px 600px' }}
     >
       {/* Floating Particles */}
@@ -101,15 +101,19 @@ const Footer: React.FC = () => {
           {/* Brand Section */}
           <div className="text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start mb-4">
-              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3">
-                <span className="text-2xl">🍪</span>
-              </div>
+              <img
+                src="/images/logo.png"
+                alt="Logo"
+                className="w-12 h-12 md:w-14 md:h-14 object-contain mr-3 select-none"
+                loading="lazy"
+                decoding="async"
+              />
               <div>
                 <h3 className="font-fredoka text-2xl font-bold">Diskos</h3>
-                <p className="text-sm opacity-90">Biscuits</p>
+                <p className="text-sm text-[#FFE8B0]">Biscuits</p>
               </div>
             </div>
-            <p className="font-poppins text-sm opacity-90 leading-relaxed">
+            <p className="font-poppins text-sm text-[#FFE8B0] leading-relaxed">
               Spreading joy and creating magical moments, one biscuit at a time. 
               Join our sweet adventure! ✨
             </p>
@@ -117,13 +121,13 @@ const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div>
-                            <h4 className="font-fredoka text-lg font-bold mb-4">Quick Links 🚀</h4>
+            <h4 className="font-fredoka text-lg font-bold mb-4 text-[#FFE8B0]">Quick Links 🚀</h4>
             <ul className="space-y-2">
               {['Home', 'Our Treats', 'About Us', 'Contact'].map((link) => (
                 <li key={link}>
                   <a 
                     href="#" 
-                    className="font-poppins text-sm opacity-90 hover:opacity-100 transition-opacity duration-200 hover:underline"
+                    className="font-poppins text-sm text-[#FFE8B0] hover:text-white transition-colors duration-200 hover:underline"
                   >
                     {link}
                   </a>
@@ -134,36 +138,36 @@ const Footer: React.FC = () => {
 
           {/* Contact Info */}
           <div>
-                            <h4 className="font-fredoka text-lg font-bold mb-4">Get in Touch 📞</h4>
+            <h4 className="font-fredoka text-lg font-bold mb-4 text-[#FFE8B0]">Get in Touch 📞</h4>
             <div className="space-y-3">
               <div className="flex items-center">
-                <Phone className="w-4 h-4 mr-2 opacity-90" />
-                <span className="font-poppins text-sm opacity-90">+91-9467689666</span>
+                <Phone className="w-4 h-4 mr-2 text-[#FFE8B0]" />
+                <span className="font-poppins text-sm text-[#FFE8B0]">+91-9467689666</span>
               </div>
               <div className="flex items-center">
-                <Mail className="w-4 h-4 mr-2 opacity-90" />
-                <span className="font-poppins text-sm opacity-90">dksincorporate@gmail.com</span>
+                <Mail className="w-4 h-4 mr-2 text-[#FFE8B0]" />
+                <span className="font-poppins text-sm text-[#FFE8B0]">dksincorporate@gmail.com</span>
               </div>
               <div className="flex items-center">
-                <MapPin className="w-4 h-4 mr-2 opacity-90" />
-                <span className="font-poppins text-sm opacity-90">Biscuit Land, Sweet Street 123</span>
+                <MapPin className="w-4 h-4 mr-2 text-[#FFE8B0]" />
+                <span className="font-poppins text-sm text-[#FFE8B0]">Biscuit Land, Sweet Street 123</span>
               </div>
             </div>
           </div>
 
           {/* Newsletter */}
           <div>
-                            <h4 className="font-fredoka text-lg font-bold mb-4">Magic Updates 💌</h4>
-            <p className="font-poppins text-sm opacity-90 mb-4">
+            <h4 className="font-fredoka text-lg font-bold mb-4 text-[#FFE8B0]">Magic Updates 💌</h4>
+            <p className="font-poppins text-sm text-[#FFE8B0] mb-4">
               Get the latest news about new flavors and special offers!
             </p>
             <div className="flex flex-col gap-2">
               <input
                 type="email"
                 placeholder="Your email address"
-                className="px-4 py-2 rounded-full text-gray-800 font-poppins text-sm focus:outline-none focus:ring-2 focus:ring-white"
+                className="px-4 py-2 rounded-full text-[#5B3C1B] font-poppins text-sm focus:outline-none focus:ring-2 focus:ring-[#FFE8B0]"
               />
-                              <button className="bg-white text-purple-600 px-4 py-2 rounded-full font-fredoka font-bold text-sm hover:bg-gray-100 transition-colors duration-200">
+              <button className="bg-[#FFE8B0] text-[#5B3C1B] px-4 py-2 rounded-full font-fredoka font-bold text-sm hover:bg-[#FFD98A] transition-colors duration-200">
                 Subscribe! 🎉
               </button>
             </div>
@@ -171,7 +175,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Social Links */}
-        <div className="border-t border-white/20 mt-12 pt-8">
+        <div className="border-t border-[#FFE8B0]/20 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex space-x-3 mb-4 md:mb-0">
               {[
@@ -185,19 +189,19 @@ const Footer: React.FC = () => {
                   href={href}
                   aria-label={label}
                   title={label}
-                  className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/80 transition-all duration-300 transform hover:scale-110"
+                  className="w-10 h-10 bg-[#F9C56C]/30 rounded-full flex items-center justify-center hover:bg-[#F9C56C]/50 focus:outline-none focus:ring-2 focus:ring-[#FFE8B0] transition-all duration-300 transform hover:scale-110"
                 >
-                  <Icon className="w-5 h-5 text-white" />
+                  <Icon className="w-5 h-5 text-[#FFE8B0]" />
                 </a>
               ))}
             </div>
             
             <div className="text-center">
-              <p className="font-poppins text-sm opacity-90 flex items-center justify-center">
+              <p className="font-poppins text-sm text-[#FFE8B0] flex items-center justify-center">
                 Made with <Heart className="w-4 h-4 mx-1 text-red-300" /> by the Diskos Team
               </p>
-              <p className="font-poppins text-xs opacity-75 mt-1">
-                © 2024 Diskos Biscuits. All rights reserved. 🍪
+              <p className="font-poppins text-xs text-[#FFE8B0]/75 mt-1">
+                &copy; 2024 Diskos Biscuits. All rights reserved. 🍪
               </p>
             </div>
           </div>

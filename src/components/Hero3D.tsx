@@ -25,7 +25,7 @@ function FloatingBiscuit({ position, onClick, delay = 0 }: {
       // Rotation animation
       gsap.to(biscuitRef.current, {
         rotation: 360,
-        duration: 8 + Math.random() * 4,
+        duration: 40, // match big logo speed
         repeat: -1,
         ease: 'none',
         delay: delay * 0.5
@@ -62,14 +62,13 @@ function FloatingBiscuit({ position, onClick, delay = 0 }: {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-              <div className="relative">
-          {/* Main biscuit */}
-          <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full shadow-lg flex items-center justify-center">
-            <div className="text-2xl md:text-3xl">🍪</div>
-          </div>
-          {/* Sparkle effect */}
-          <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-300 rounded-full opacity-80 animate-ping"></div>
-        </div>
+      <img
+        src="/images/logo.png"
+        alt="Mini Cookie"
+        className="w-12 h-12 md:w-14 md:h-14 object-contain select-none"
+        loading="lazy"
+        decoding="async"
+      />
     </div>
   );
 }
@@ -196,6 +195,7 @@ export default function Hero3D() {
   const [scrollY, setScrollY] = useState(0);
   const [mounted, setMounted] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
+  const logoRef = useRef<HTMLImageElement>(null);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -209,6 +209,21 @@ export default function Hero3D() {
   // Mark mounted to enable non-critical visual effects after first paint
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  // Rotate main logo slowly
+  useEffect(() => {
+    const start = async () => {
+      if (!logoRef.current) return;
+      const { gsap } = await import('gsap');
+      gsap.to(logoRef.current, {
+        rotation: 360,
+        duration: 40,
+        ease: 'none',
+        repeat: -1,
+      });
+    };
+    (window as any).requestIdleCallback ? (window as any).requestIdleCallback(start) : setTimeout(start, 0);
   }, []);
 
   // Generate random positions for floating elements
@@ -238,9 +253,20 @@ export default function Hero3D() {
   ];
 
   return (
-    <div ref={heroRef} className="relative w-full h-screen overflow-hidden bg-gradient-to-b from-blue-200 via-purple-200 to-orange-200">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 opacity-80"></div>
+    <div ref={heroRef} className="relative w-full h-screen overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: 'url("/images/biscuit-bg.png")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+      
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#F9C56C]/60 via-[#FFD98A]/60 to-[#F6B63C]/60"></div>
       
       {/* Parallax Background Elements */}
       <CameraController scrollY={scrollY} />
@@ -279,8 +305,17 @@ export default function Hero3D() {
       {/* Hero Text Overlay */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
         <div className="text-center px-4 max-w-4xl">
-          <div className="mb-6">
-            <span className="text-8xl md:text-9xl block mb-4">🍪</span>
+          <div className="mb-6 flex justify-center">
+            <div className="relative mb-4 w-48 h-48 md:w-64 md:h-64">
+              <img
+                ref={logoRef}
+                src="/images/logo.png"
+                alt="Brand Logo"
+                className="w-full h-full object-contain select-none origin-center will-change-transform"
+                loading="eager"
+                decoding="async"
+              />
+            </div>
           </div>
           
           <h1 className={`text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 ${mounted ? 'drop-shadow-lg' : ''}`}>

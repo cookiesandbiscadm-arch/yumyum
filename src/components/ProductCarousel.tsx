@@ -27,7 +27,7 @@ const ProductCarousel: React.FC = () => {
           gsap.registerPlugin(ScrollTrigger);
 
           ctx = gsap.context(() => {
-            const q = gsap.utils.selector(sectionRef);
+            const q = gsap.utils.selector(el);
 
             // Animate section title (scoped)
             const title = q('.carousel-title');
@@ -68,7 +68,7 @@ const ProductCarousel: React.FC = () => {
                 }
               );
             }
-          }, sectionRef);
+          }, el);
 
           // Do not call ScrollTrigger.refresh() here to avoid invalid scopes while hidden
         })();
@@ -113,15 +113,15 @@ const ProductCarousel: React.FC = () => {
   return (
     <section
       ref={sectionRef}
-      className="py-20 bg-gradient-to-b from-pink-50 to-orange-50"
+      className="py-20 bg-gradient-to-b from-[#FFE8B0] to-[#F9C56C]"
       style={{ contentVisibility: 'auto', containIntrinsicSize: '1200px 900px' }}
     >
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="carousel-title font-fredoka text-4xl md:text-6xl font-bold magic-text mb-4">
+          <h2 className="carousel-title font-fredoka text-4xl md:text-6xl font-bold mb-4 text-[#5B3C1B]">
             Our Magical Treats ✨
           </h2>
-          <p className="font-poppins text-xl text-textBody max-w-2xl mx-auto">
+          <p className="font-poppins text-xl text-[#7D5630] max-w-2xl mx-auto">
             Each biscuit is crafted with love and sprinkled with happiness
           </p>
         </div>

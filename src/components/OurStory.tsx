@@ -143,15 +143,18 @@ const OurStory: React.FC = () => {
   return (
     <section
       ref={sectionRef}
-      className="py-20 bg-gradient-to-b from-blue-50 to-yellow-50 overflow-hidden"
+      className="py-20 bg-gradient-to-br from-[#FFF9ED] to-[#FFE8B0] overflow-hidden"
       style={{ contentVisibility: 'auto', containIntrinsicSize: '1200px 1200px' }}
     >
       <div className="container mx-auto px-4">
         <div className="story-header text-center mb-16">
-                      <h2 className="font-fredoka text-4xl md:text-6xl font-bold magic-text mb-4">
-            Our Magical Journey 🌟
+                      <h2 className="font-fredoka text-4xl md:text-6xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-[#A6651C] via-[#E08A2E] to-[#F4A73C] bg-clip-text text-transparent">
+              Our Magical Journey 
+              <span className="inline-block animate-bounce">✨</span>
+            </span>
           </h2>
-          <p className="font-poppins text-xl text-textBody max-w-2xl mx-auto">
+          <p className="font-poppins text-xl text-[#5B3C1B]/90 max-w-2xl mx-auto">
             Every great adventure has a beginning. Here's ours...
           </p>
         </div>
@@ -159,7 +162,7 @@ const OurStory: React.FC = () => {
         {/* Timeline */}
         <div className="relative max-w-4xl mx-auto">
           {/* Timeline line */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-pink-200 via-purple-200 to-orange-200 rounded-full"></div>
+          <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-[#FFD699] via-[#E08A2E] to-[#A6651C] rounded-full shadow-inner"></div>
 
           {storySteps.map((step, index) => (
             <div
@@ -170,21 +173,21 @@ const OurStory: React.FC = () => {
             >
               {/* Content Card */}
               <div className={`w-full md:w-5/12 ${step.side === 'left' ? 'md:pr-8' : 'md:pl-8'} mb-8 md:mb-0`}>
-                <div className="bg-white rounded-3xl p-4 md:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                <div className="bg-gradient-to-br from-white to-[#FFF5E5] backdrop-blur-sm rounded-3xl p-4 md:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-[#FFE8B0] hover:border-[#E08A2E]">
                   <div className="flex items-center mb-4">
                     <div className={`story-icon-${index} text-3xl md:text-4xl mr-3`}>
                       {step.icon}
                     </div>
                     <div>
-                      <div className="font-fredoka text-xl md:text-2xl font-bold magic-text">
+                      <div className="font-fredoka text-xl md:text-2xl font-bold bg-gradient-to-r from-[#A6651C] to-[#E08A2E] bg-clip-text text-transparent">
                         {step.year}
                       </div>
-                      <h3 className="font-fredoka text-lg md:text-xl font-bold text-textPrimary">
+                      <h3 className="font-fredoka text-lg md:text-xl font-bold text-[#5B3C1B] mt-1">
                         {step.title}
                       </h3>
                     </div>
                   </div>
-                  <p className="font-poppins text-textBody leading-relaxed text-sm md:text-base">
+                  <p className="font-poppins text-[#5B3C1B]/90 leading-relaxed text-sm md:text-base mt-2">
                     {step.description}
                   </p>
                   <div className="text-right mt-4 text-xl md:text-2xl">
@@ -194,7 +197,7 @@ const OurStory: React.FC = () => {
               </div>
 
               {/* Timeline dot */}
-              <div className="absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full border-4 border-white shadow-lg z-10"></div>
+              <div className="absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-gradient-to-r from-[#F9C56C] to-[#E08A2E] rounded-full border-4 border-white shadow-lg z-10 hover:scale-125 transition-transform duration-300"></div>
 
               {/* Empty space for the other side */}
               <div className="hidden md:block w-5/12"></div>
@@ -204,15 +207,15 @@ const OurStory: React.FC = () => {
 
         {/* Call to Action */}
         <div className="text-center mt-16">
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 max-w-2xl mx-auto shadow-xl">
-                            <h3 className="font-fredoka text-3xl font-bold magic-text mb-4">
+          <div className="bg-gradient-to-br from-white to-[#FFF5E5] rounded-3xl p-8 max-w-2xl mx-auto shadow-xl border-2 border-[#FFE8B0] hover:border-[#E08A2E] transition-colors duration-300">
+                            <h3 className="font-fredoka text-3xl font-bold bg-gradient-to-r from-[#A6651C] to-[#E08A2E] bg-clip-text text-transparent mb-4">
               Join Our Adventure! 🎯
             </h3>
-            <p className="font-poppins text-textBody mb-6">
+            <p className="font-poppins text-[#5B3C1B]/90 mb-6 text-lg">
               Be part of our magical story. Every biscuit you enjoy adds a new chapter to our journey of spreading joy and creating sweet memories.
             </p>
-                          <button className="bg-gradient-to-r from-pink-500 via-purple-500 to-orange-500 text-white px-8 py-4 rounded-full font-fredoka font-bold text-lg hover:from-pink-600 hover:via-purple-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 magic-button">
-              🍪 Start Your Adventure
+                          <button className="bg-gradient-to-r from-[#A6651C] via-[#E08A2E] to-[#F4A73C] text-white px-8 py-4 rounded-full font-fredoka font-bold text-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg">
+              <span className="drop-shadow-md">🍪 Start Your Adventure</span>
             </button>
           </div>
         </div>
