@@ -197,6 +197,14 @@ export default function Hero3D() {
   const heroRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLImageElement>(null);
   
+  // Smooth scroll to products section
+  const scrollToProducts = () => {
+    const el = document.getElementById('products');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
@@ -319,15 +327,15 @@ export default function Hero3D() {
           </div>
           
           <h1 className={`text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 ${mounted ? 'drop-shadow-lg' : ''}`}>
-            Bite into a World of Joy!
+            Grab a Bite to a Healthier Life!
           </h1>
           <p className="text-lg md:text-xl lg:text-2xl text-white/90 mb-8 drop-shadow">
-            Discover magical biscuits that make every moment sweeter
+            Discover cookies that make every bite a delight with healthier lifestyle.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="pointer-events-auto inline-flex items-center gap-3 bg-gradient-to-r from-[#E08A2E] to-[#D07D1F] text-white px-8 py-4 rounded-full text-lg font-bold shadow-lg hover:shadow-xl hover:shadow-[0_0_30px_rgba(224,138,46,0.5)] transform hover:scale-105 transition-all duration-300 hover:from-[#D07D1F] hover:to-[#A65A18] focus:outline-none focus:ring-2 focus:ring-[#E08A2E]/50">
+            <button onClick={scrollToProducts} className="pointer-events-auto inline-flex items-center gap-3 bg-gradient-to-r from-[#E08A2E] to-[#D07D1F] text-white px-8 py-4 rounded-full text-lg font-bold shadow-lg hover:shadow-xl hover:shadow-[0_0_30px_rgba(224,138,46,0.5)] transform hover:scale-105 transition-all duration-300 hover:from-[#D07D1F] hover:to-[#A65A18] focus:outline-none focus:ring-2 focus:ring-[#E08A2E]/50" aria-label="Scroll to products">
               <img src="/images/logo.png" alt="Logo" className="w-6 h-6 md:w-7 md:h-7 object-contain select-none" loading="lazy" decoding="async" />
-              <span>Start Adventure</span>
+              <span>Grab a Bite</span>
             </button>
             <button className="pointer-events-auto bg-white/80 backdrop-blur-sm text-textPrimary px-8 py-4 rounded-full text-lg font-bold hover:bg-white hover:scale-105 transition-all duration-300">
               Watch Story

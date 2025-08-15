@@ -177,8 +177,8 @@ const ThankYouPage: React.FC = () => {
         >
           {[
             { emoji: '🚚', text: 'Free Delivery', subtitle: 'Straight to your door!' },
-            { emoji: '⏰', text: '30 Min Max', subtitle: 'Super fast delivery' },
-            { emoji: '😊', text: '100% Happy', subtitle: 'Guaranteed smiles' },
+            { emoji: '⏰', text: '4–7 Days', subtitle: 'Estimated delivery time' },
+            { emoji: '😊', text: '100% Happy', subtitle: 'Happy Children' },
           ].map((item, index) => (
             <motion.div
               key={index}

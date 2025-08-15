@@ -112,6 +112,7 @@ const ProductCarousel: React.FC = () => {
 
   return (
     <section
+      id="products"
       ref={sectionRef}
       className="py-20 bg-gradient-to-b from-[#FFE8B0] to-[#F9C56C]"
       style={{ contentVisibility: 'auto', containIntrinsicSize: '1200px 900px' }}

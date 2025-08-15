@@ -4,11 +4,10 @@ const BuySection: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   // No local state needed in this lightweight section
  
-
   const features = [
     { icon: '🚚', title: 'Free Delivery', description: 'Straight to your door!' },
-    { icon: '⏰', title: '30 Min Max', description: 'Super fast delivery' },
-    { icon: '😊', title: '100% Happy', description: 'Guaranteed smiles' },
+    { icon: '⏰', title: '4–7 Days', description: 'Estimated delivery time' },
+    { icon: '😊', title: '100% Heathy', description: 'Happy Children' },
     { icon: '🌟', title: 'Premium Quality', description: 'Only the best ingredients' }
   ];
 

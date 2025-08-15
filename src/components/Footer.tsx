@@ -114,7 +114,7 @@ const Footer: React.FC = () => {
               </div>
             </div>
             <p className="font-poppins text-sm text-[#FFE8B0] leading-relaxed">
-              Spreading joy and creating magical moments, one biscuit at a time. 
+            spreading a healthier alternative to all your snacking habits - boost your brain, your health and immunity with our sweet snackers!   
               Join our sweet adventure! ✨
             </p>
           </div>

@@ -28,7 +28,7 @@ const Header: React.FC = () => {
             />
             <div>
               <h1 className="font-fredoka text-3xl font-bold bg-gradient-to-r from-[#E08A2E] via-[#A6651C] to-[#F4A73C] bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">Diskos</h1>
-              <p className="text-sm text-[#7D5630] -mt-1 font-medium">✨ Magical Biscuits</p>
+              <p className="text-sm text-[#7D5630] -mt-1 font-medium">✨ Healthier Biscuits</p>
             </div>
           </Link>
 
