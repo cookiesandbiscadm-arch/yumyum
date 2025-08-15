@@ -9,7 +9,6 @@ const ThankYouPage: React.FC = () => {
 
   useEffect(() => {
     // Confetti effect
-    const colors = ['#FFB347', '#8AD1C2', '#F07C9E', '#FFF5D6'];
     const confetti = document.createElement('div');
     confetti.style.position = 'fixed';
     confetti.style.top = '0';
@@ -54,7 +53,7 @@ const ThankYouPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="pt-20 min-h-screen bg-secondary flex items-center justify-center">
+    <div className="pt-20 min-h-screen bg-gradient-to-br from-[#FFE8B0] to-[#F9C56C] flex items-center justify-center">
       {/* Floating background elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         {[...Array(12)].map((_, i) => (
@@ -113,7 +112,7 @@ const ThankYouPage: React.FC = () => {
           transition={{ delay: 0.5, duration: 0.8 }}
           className="max-w-2xl mx-auto"
         >
-          <h1 className="font-fredoka text-4xl md:text-6xl text-textPrimary mb-6">
+          <h1 className="font-fredoka text-4xl md:text-6xl text-[#5B3C1B] mb-6">
             Your Biscuit Adventure is on the Way!
           </h1>
           
@@ -124,10 +123,10 @@ const ThankYouPage: React.FC = () => {
               transition={{ delay: 0.8, duration: 0.8 }}
               className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 mb-8 shadow-xl"
             >
-              <h2 className="font-fredoka text-2xl text-textPrimary mb-4">
+              <h2 className="font-fredoka text-2xl text-[#5B3C1B] mb-4">
                 Order Confirmation
               </h2>
-              <div className="text-left space-y-2 font-poppins text-textBody">
+              <div className="text-left space-y-2 font-poppins text-[#7D5630]">
                 <p><strong>Name:</strong> {customerInfo.name}</p>
                 <p><strong>Phone:</strong> {customerInfo.phone}</p>
                 <p><strong>Address:</strong> {customerInfo.address}</p>
@@ -139,7 +138,7 @@ const ThankYouPage: React.FC = () => {
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 1.1, duration: 0.8 }}
-            className="font-poppins text-xl text-textBody mb-8"
+            className="font-poppins text-xl text-[#7D5630] mb-8"
           >
             Thank you for choosing Diskos Biscuits! Your delicious treats will be delivered 
             with extra love and magic sprinkles. 
@@ -153,7 +152,7 @@ const ThankYouPage: React.FC = () => {
           >
             <Link
               to="/catalog"
-              className="group bg-primary text-white px-8 py-4 rounded-full font-poppins font-semibold text-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
+              className="group bg-gradient-to-r from-[#A6651C] to-[#E08A2E] text-white px-8 py-4 rounded-full font-poppins font-semibold text-lg hover:opacity-90 transition-all duration-300 flex items-center gap-2 shadow-md"
             >
               Order More Treats
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -161,9 +160,9 @@ const ThankYouPage: React.FC = () => {
             
             <Link
               to="/"
-              className="bg-white/80 backdrop-blur-sm text-textPrimary px-8 py-4 rounded-full font-poppins font-semibold text-lg hover:bg-white transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
+              className="bg-white/80 backdrop-blur-sm text-[#5B3C1B] px-8 py-4 rounded-full font-poppins font-semibold text-lg hover:bg-white transition-colors duration-300 flex items-center gap-2 shadow-sm"
             >
-              <Home className="w-5 h-5 text-accent2" />
+              <Home className="w-5 h-5 text-[#E08A2E]" />
               Back to Home
             </Link>
           </motion.div>

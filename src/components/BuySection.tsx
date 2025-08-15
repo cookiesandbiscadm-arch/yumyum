@@ -34,16 +34,15 @@ const BuySection: React.FC = () => {
             const container = q('.buy-container');
             if (container.length) {
               gsap.fromTo(container,
-                { y: 100, opacity: 0, scale: 0.9 },
+                { y: 50, opacity: 0 },
                 {
                   y: 0,
                   opacity: 1,
-                  scale: 1,
-                  duration: 1,
+                  duration: 0.8,
                   ease: 'power3.out',
                   scrollTrigger: {
                     trigger: container[0],
-                    start: 'top 80%',
+                    start: 'top 85%',
                     toggleActions: 'play none none reverse'
                   }
                 }
@@ -55,16 +54,16 @@ const BuySection: React.FC = () => {
             const featuresGrid = q('.features-grid')[0];
             if (features.length && featuresGrid) {
               gsap.fromTo(features,
-                { y: 50, opacity: 0 },
+                { y: 30, opacity: 0 },
                 {
                   y: 0,
                   opacity: 1,
-                  duration: 0.8,
-                  stagger: 0.2,
-                  ease: 'bounce.out',
+                  duration: 0.6,
+                  stagger: 0.15,
+                  ease: 'power3.out',
                   scrollTrigger: {
                     trigger: featuresGrid,
-                    start: 'top 80%',
+                    start: 'top 85%',
                     toggleActions: 'play none none reverse'
                   }
                 }
@@ -92,7 +91,7 @@ const BuySection: React.FC = () => {
   return (
     <section
       ref={sectionRef}
-      className="py-20 bg-gradient-to-b from-blue-50 to-pink-50"
+      className="py-20 bg-gradient-to-br from-[#FFF5E0] to-[#FFE8B0]"
       style={{ contentVisibility: 'auto', containIntrinsicSize: '1100px 900px' }}
     >
       <div className="container mx-auto px-4">
@@ -106,13 +105,13 @@ const BuySection: React.FC = () => {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="feature-item text-center p-6 bg-gray-50 rounded-3xl hover:bg-white hover:shadow-lg transition-all duration-300"
+                className="feature-item text-center p-6 bg-white/80 backdrop-blur-sm rounded-3xl hover:shadow-xl transition-all duration-300 border border-[#FFE8B0] hover:border-[#E08A2E] hover:scale-[1.02]"
               >
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h4 className="font-fredoka text-lg font-bold text-textPrimary mb-2">
+                <div className="text-5xl mb-4 drop-shadow-md">{feature.icon}</div>
+                <h4 className="font-fredoka text-xl font-bold text-[#5B3C1B] mb-2">
                   {feature.title}
                 </h4>
-                <p className="font-poppins text-textBody text-sm">
+                <p className="font-poppins text-[#7D5630] text-sm">
                   {feature.description}
                 </p>
               </div>

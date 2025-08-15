@@ -170,7 +170,7 @@ export async function submitOrder({ customer, items }: {
   // 2. Insert order
   const { data: orderData, error: orderError } = await supabase
     .from('orders')
-    .insert([{ customer_id, delivery_address: customer.address, total_amount: totalAmount.toString() }])
+    .insert([{ customer_id, delivery_address: customer.address, total_amount: totalAmount }])
     .select('id, order_number')
     .single();
   if (orderError) throw orderError;
