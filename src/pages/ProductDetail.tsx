@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabaseClient';
 import { useCart } from '../context/CartContext';
 import { fetchCategories } from '../lib/api';
 import { formatINR } from '../lib/format';
+import ProductCard from '../components/ProductCard';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,6 +32,13 @@ const ProductDetail: React.FC = () => {
     async function fetchProduct() {
       setLoading(true);
       setError(null);
+      // Guard against undefined route id
+      if (!id) {
+        setError('Invalid product ID.');
+        setProduct(null);
+        setLoading(false);
+        return;
+      }
       const { data, error } = await supabase
         .from('products_with_images')
         .select('*')
@@ -38,26 +46,20 @@ const ProductDetail: React.FC = () => {
         .single();
       if (error) setError(error.message || 'Failed to load product.');
       // Normalize nutrition in case the view exposes flat columns
-      const normalized = data
-        ? {
-            ...data,
-            nutrition:
-              data?.nutrition ?? {
-                calories: (data as any)?.calories ?? (data as any)?.nutrition_calories ?? null,
-                sugar: (data as any)?.sugar ?? (data as any)?.nutrition_sugar ?? null,
-                protein: (data as any)?.protein ?? (data as any)?.nutrition_protein ?? null,
-              },
-          }
-        : null;
-      // If all fields are null, drop nutrition to avoid showing placeholders unnecessarily
-      if (
-        normalized &&
-        normalized.nutrition &&
-        normalized.nutrition.calories == null &&
-        normalized.nutrition.sugar == null &&
-        normalized.nutrition.protein == null
-      ) {
-        (normalized as any).nutrition = undefined;
+      type Nutrition = { calories: number | null; sugar: number | null; protein: number | null };
+      let normalized: any = data ? { ...data } : null;
+      if (normalized) {
+        const nutrition: Nutrition = (normalized as any)?.nutrition ?? {
+          calories: (normalized as any)?.calories ?? (normalized as any)?.nutrition_calories ?? null,
+          sugar: (normalized as any)?.sugar ?? (normalized as any)?.nutrition_sugar ?? null,
+          protein: (normalized as any)?.protein ?? (normalized as any)?.nutrition_protein ?? null,
+        };
+        // If all fields are null, drop nutrition to avoid showing placeholders unnecessarily
+        if (nutrition.calories == null && nutrition.sugar == null && nutrition.protein == null) {
+          normalized.nutrition = undefined;
+        } else {
+          normalized.nutrition = nutrition;
+        }
       }
       setProduct(normalized);
       setLoading(false);
@@ -380,7 +382,7 @@ const ProductDetail: React.FC = () => {
             You Might Also Love
           </h2>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
             {relatedLoading ? (
               <div className="col-span-full text-center py-8">Loading related products...</div>
             ) : relatedError ? (
@@ -395,28 +397,17 @@ const ProductDetail: React.FC = () => {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ y: -5 }}
-                  className="related-item group bg-white/90 backdrop-blur-sm rounded-3xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 border border-[#FFE8B0]"
+                  className="related-item h-full"
                 >
-                  <Link to={`/product/${relatedProduct.id}`}>
-                    <div className="relative overflow-hidden rounded-2xl mb-3">
-                      <img
-                        src={relatedProduct.full_image_url || relatedProduct.image_url}
-                        alt={relatedProduct.name}
-                        loading="lazy"
-                        decoding="async"
-                        width="200"
-                        height="128"
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                        className="w-full h-32 object-cover group-hover:scale-110 transition-transform duration-500 will-change-transform"
-                      />
-                    </div>
-                    <h3 className="font-fredoka text-lg text-[#5B3C1B] mb-1">
-                      {relatedProduct.name}
-                    </h3>
-                    <div className="font-poppins font-bold text-[#A6651C]">
-                      {formatINR(relatedProduct.price)}
-                    </div>
-                  </Link>
+                  <ProductCard 
+                    product={{
+                      ...relatedProduct,
+                      weight: '200',
+                      unit: 'g'
+                    }}
+                    linkToProduct={true}
+                    className="h-full min-h-[420px] sm:min-h-[440px]"
+                  />
                 </motion.div>
               ))}
           </div>

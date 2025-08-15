@@ -306,7 +306,7 @@ export default function Hero3D() {
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
         <div className="text-center px-4 max-w-4xl">
           <div className="mb-6 flex justify-center">
-            <div className="relative mb-4 w-48 h-48 md:w-64 md:h-64">
+            <div className="relative mb-4 mt-6 md:mt-10 w-48 h-48 md:w-64 md:h-64">
               <img
                 ref={logoRef}
                 src="/images/logo.png"
@@ -325,8 +325,9 @@ export default function Hero3D() {
             Discover magical biscuits that make every moment sweeter
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="pointer-events-auto bg-gradient-to-r from-pink-400 to-orange-400 text-white px-8 py-4 rounded-full text-lg font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-              Start Adventure
+            <button className="pointer-events-auto inline-flex items-center gap-3 bg-gradient-to-r from-[#E08A2E] to-[#D07D1F] text-white px-8 py-4 rounded-full text-lg font-bold shadow-lg hover:shadow-xl hover:shadow-[0_0_30px_rgba(224,138,46,0.5)] transform hover:scale-105 transition-all duration-300 hover:from-[#D07D1F] hover:to-[#A65A18] focus:outline-none focus:ring-2 focus:ring-[#E08A2E]/50">
+              <img src="/images/logo.png" alt="Logo" className="w-6 h-6 md:w-7 md:h-7 object-contain select-none" loading="lazy" decoding="async" />
+              <span>Start Adventure</span>
             </button>
             <button className="pointer-events-auto bg-white/80 backdrop-blur-sm text-textPrimary px-8 py-4 rounded-full text-lg font-bold hover:bg-white hover:scale-105 transition-all duration-300">
               Watch Story

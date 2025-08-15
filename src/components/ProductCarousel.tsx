@@ -152,11 +152,12 @@ const ProductCarousel: React.FC = () => {
         <div className="text-center">
           <Link
             to="/catalog"
-            className="inline-block bg-gradient-to-r from-[#E08A2E] to-[#D07D1F] text-white px-8 py-4 rounded-full font-fredoka font-bold text-lg hover:from-[#D07D1F] hover:to-[#A65A18] transition-all duration-300 transform hover:scale-105"
+            className="inline-flex items-center gap-3 bg-gradient-to-r from-[#E08A2E] to-[#D07D1F] text-white px-8 py-4 rounded-full font-fredoka font-bold text-lg shadow-lg hover:shadow-xl hover:shadow-[0_0_30px_rgba(224,138,46,0.5)] hover:from-[#D07D1F] hover:to-[#A65A18] transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#E08A2E]/50"
             aria-label="View all products"
             title="View all products"
           >
-            🍪 View All Products
+            <img src="/images/logo.png" alt="Logo" className="w-6 h-6 md:w-7 md:h-7 object-contain select-none" loading="lazy" decoding="async" />
+            <span>View All Products</span>
           </Link>
         </div>
       </div>
