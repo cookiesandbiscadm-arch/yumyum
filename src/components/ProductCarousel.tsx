@@ -152,7 +152,7 @@ const ProductCarousel: React.FC = () => {
         <div className="text-center">
           <Link
             to="/catalog"
-            className="inline-block bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full font-fredoka font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105"
+            className="inline-block bg-gradient-to-r from-[#E08A2E] to-[#D07D1F] text-white px-8 py-4 rounded-full font-fredoka font-bold text-lg hover:from-[#D07D1F] hover:to-[#A65A18] transition-all duration-300 transform hover:scale-105"
             aria-label="View all products"
             title="View all products"
           >
