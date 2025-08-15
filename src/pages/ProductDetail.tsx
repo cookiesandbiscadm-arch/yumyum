@@ -402,7 +402,7 @@ const ProductDetail: React.FC = () => {
                   <ProductCard 
                     product={{
                       ...relatedProduct,
-                      weight: '200',
+                      weight: '300',
                       unit: 'g'
                     }}
                     linkToProduct={true}

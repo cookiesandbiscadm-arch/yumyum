@@ -10,7 +10,7 @@ const ProductCardDemo: React.FC = () => {
       description: 'Crispy golden biscuits loaded with premium chocolate chips, baked to perfection with a hint of vanilla.',
       price: 120.00,
       image_url: '/api/placeholder/400/300',
-      weight: '200',
+      weight: '300',
       unit: 'g'
     },
     {
@@ -37,7 +37,7 @@ const ProductCardDemo: React.FC = () => {
       description: 'Rich chocolate biscuits with fudge chunks for the ultimate indulgence.',
       price: 180.00,
       image_url: '/api/placeholder/400/300',
-      weight: '200',
+      weight: '300',
       unit: 'g'
     },
     {

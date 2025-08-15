@@ -142,7 +142,7 @@ const ProductCarousel: React.FC = () => {
               key={product.id} 
               product={{
                 ...product,
-                weight: '200',
+                weight: '300',
                 unit: 'g'
               }}
               className="product-card"
