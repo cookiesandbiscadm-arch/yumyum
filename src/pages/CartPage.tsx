@@ -129,18 +129,6 @@ const CartPage: React.FC = () => {
     
     setIsCheckingOut(true);
     try {
-      // Increment promo code usage if applied
-      if (promoCodeDetails) {
-        const { error } = await supabase
-          .rpc('increment_use_count', {
-            p_code: promoCodeDetails.code
-          });
-        
-        if (error) {
-          console.error('Failed to update promo code usage:', error);
-          // Continue with checkout even if promo code update fails
-        }
-      }
       const orderResult = await submitOrder({
         customer: customerInfo,
         items: state.items.map(item => ({
@@ -150,6 +138,18 @@ const CartPage: React.FC = () => {
           quantity: item.quantity
         }))
       });
+
+      // Increment promo code usage only after successful order creation
+      if (promoCodeDetails) {
+        const { error } = await supabase
+          .rpc('increment_use_count', {
+            p_code: promoCodeDetails.code
+          });
+        if (error) {
+          console.error('Failed to update promo code usage:', error);
+          // Continue with checkout even if promo code update fails
+        }
+      }
       clearCart();
       navigate('/thank-you', { state: { customerInfo, orderNumber: orderResult.order_number } });
     } catch (error: any) {
